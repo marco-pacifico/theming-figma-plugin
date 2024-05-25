@@ -1,7 +1,7 @@
 // Declare a promise and assign its resolve function to resolveThemes so we can resolve it later, when we receive the themes from the invisible iframe
 let resolveThemes: (value: string[] | PromiseLike<string[]>) => void;
 const themesPromise = new Promise<string[]>((resolve) => {
-  resolveThemes = resolve
+  resolveThemes = resolve;
 });
 
 // Create an invisible iframe UI to use network API to fetch themes
@@ -25,10 +25,10 @@ figma.ui.onmessage = (json) => {
 // Set the suggestions based on the themes fetched
 // Filter the suggestions based on the query entered
 figma.parameters.on(
-  'input',
+  "input",
   async ({ key, query, result }: ParameterInputEvent) => {
     // When fetching data show a loading message
-    result.setLoadingMessage('Loading themes...');
+    result.setLoadingMessage("Loading themes...");
     const themes = await themesPromise;
     result.setSuggestions(
       // Filter suggestions based on the query entered
@@ -39,7 +39,7 @@ figma.parameters.on(
   }
 );
 
-figma.on('run', ({ parameters }: RunEvent) => {
+figma.on("run", ({ parameters }: RunEvent) => {
   const themeName = parameters?.theme;
   figma.closePlugin(`You selected the theme: ${themeName}`);
 });
