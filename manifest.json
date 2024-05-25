@@ -9,9 +9,17 @@
   "editorType": [
     "figma"
   ],
+  "parameters": [
+    {
+      "name": "Theme",
+      "key": "theme",
+      "description": "Select a theme"
+    }
+  ],
   "networkAccess": {
     "allowedDomains": [
-      "none"
+      "https://theming-playground.vercel.app/api/theme",
+      "https://theming-playground.vercel.app/api/themes"
     ]
   }
 }

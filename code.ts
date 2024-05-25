@@ -1,22 +1,40 @@
-// This plugin creates 5 rectangles on the screen.
-const numberOfRectangles = 5
+let resolveThemes: (value: string[] | PromiseLike<string[]>) => void;
+const themesPromise = new Promise<string[]>((resolve) => {
+  resolveThemes = resolve
+});
 
-// This file holds the main code for plugins. Code in this file has access to
-// the *figma document* via the figma global object.
-// You can access browser APIs in the <script> tag inside "ui.html" which has a
-// full browser environment (See https://www.figma.com/plugin-docs/how-plugins-run).
+figma.showUI(
+  `<script>
+    (async (event) => {
+      const res = await fetch("https://theming-playground.vercel.app/api/themes");
+      const json = await res.json();
+      window.parent.postMessage({ pluginMessage: json }, "*");
+    })();
+  </script>`,
+  { visible: false }
+);
 
-const nodes: SceneNode[] = [];
-for (let i = 0; i < numberOfRectangles; i++) {
-  const rect = figma.createRectangle();
-  rect.x = i * 150;
-  rect.fills = [{type: 'SOLID', color: {r: 1, g: 0.5, b: 0}}];
-  figma.currentPage.appendChild(rect);
-  nodes.push(rect);
-}
-figma.currentPage.selection = nodes;
-figma.viewport.scrollAndZoomIntoView(nodes);
+// Resolve the themes promise when a message is received from the iframe
+figma.ui.onmessage = (json) => {
+  resolveThemes(json);
+};
 
-// Make sure to close the plugin when you're done. Otherwise the plugin will
-// keep running, which shows the cancel button at the bottom of the screen.
-figma.closePlugin();
+figma.parameters.on(
+  'input',
+  async ({ key, query, result }: ParameterInputEvent) => {
+    // When fetching data show a loading message
+    result.setLoadingMessage('Loading themes...');
+    const themes = await themesPromise;
+    result.setSuggestions(
+      // Filter suggestions based on the query entered
+      themes.filter((theme) =>
+        theme.toLowerCase().includes(query.toLowerCase())
+      )
+    );
+  }
+);
+
+figma.on('run', ({ parameters }: RunEvent) => {
+  const themeName = parameters?.theme;
+  figma.closePlugin(`You selected the theme: ${themeName}`);
+});
