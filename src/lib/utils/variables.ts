@@ -1,5 +1,8 @@
 // **************************************************************
-// Create a collection
+// Create new or use existing collection with the given name
+
+import { hexToRgbFloat } from "./colors";
+
 // **************************************************************
 export async function getCollectionAndModeId(name: string) {
   // Initialize the collection and modeId
@@ -24,8 +27,42 @@ export async function getCollectionAndModeId(name: string) {
 }
 
 // **************************************************************
-// Get all the existing variables, optionally filtered by type
+// Get an array of the existing variables, optionally filtered by type
 // **************************************************************
 export async function existingVariables(type: VariableResolvedDataType) {
   return await figma.variables.getLocalVariablesAsync(type);
+}
+
+// **************************************************************
+// Create a new variable or update an existing variable with the same name
+// **************************************************************
+type TCreateColorVariablesOrUpdateExisitng = {
+  name: string;
+  hex?: string;
+  collection: VariableCollection;
+  modeId: string;
+  existingColorVariables: Variable[];
+};
+export async function createColorVariableOrUseExisitng({
+  name,
+  hex,
+  collection,
+  modeId,
+  existingColorVariables,
+}: TCreateColorVariablesOrUpdateExisitng) {
+  if (existingVariables && existingVariables.length > 0) {
+    // Check if a variable with the same name already exists
+    const existingVariable = existingColorVariables.find(
+      (variable) => variable.name === name
+    );
+    if (existingVariable) {
+      // Update the existing variable with the same name
+      hex && existingVariable.setValueForMode(modeId, hexToRgbFloat(hex));
+      return existingVariable;
+    }
+  }
+  // Create a new variable if no variables exist
+  const variable = figma.variables.createVariable(name, collection, "COLOR");
+  hex && variable.setValueForMode(modeId, hexToRgbFloat(hex));
+  return variable;
 }

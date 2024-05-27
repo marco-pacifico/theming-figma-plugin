@@ -1,46 +1,54 @@
-import { hexToRgbFloat } from "./utils/colors";
-import { getThemeByName } from "./data";
-import { getCollectionAndModeId } from "./utils/variables";
+import { ColorScale, Theme } from "./types";
+import {
+  getCollectionAndModeId,
+  createColorVariableOrUseExisitng,
+} from "./utils/variables";
 
-export async function createColorVars(themeName: string) {
+export async function createColorVars(theme: Theme) {
   try {
-    // Get the theme by name
-    const theme = await getThemeByName(themeName);
-    if (!theme) {
-      console.error("Theme not found");
-      return;
-    }
     // Define the color roles
-    const colorRoles = ["brand", "accent", "supplemental", "neutral"];
-    // Create a collection for the colors
+    const COLOR_ROLES = ["brand", "accent", "supplemental", "neutral"];
+
+    // Create a collection for the colors or use existing collection if it exists
     const { collection, modeId } = await getCollectionAndModeId("Colors");
 
+    // Get the existing color variables in the file
+    // Need this to check if a variable already exists
+    const existingColorVariables = await figma.variables.getLocalVariablesAsync(
+      "COLOR"
+    );
+
     // Create variables for the colors
-    colorRoles.forEach((role) => {
-      const colorRamp = theme[role];
-      const baseShade = colorRamp["BASE"].toString();
-      let basePointsTo: Variable | undefined = undefined;
-      for (const shade in colorRamp) {
-        const variableName = `${role}-${shade}`;
+    COLOR_ROLES.forEach(async (role) => {
+      const scale = theme[role] as ColorScale;
+
+      // Needed to capture the shade that the base shade will be aliased to later
+      let baseAliasedTo: Variable | undefined = undefined;
+
+      for (const shade in scale) {
         if (shade !== "BASE") {
-          const colorHex = colorRamp[shade];
-          const variable = figma.variables.createVariable(
-            variableName,
+          // Create new variable or update existing variable with the same name
+          const variable = await createColorVariableOrUseExisitng({
+            name: `${role}-${shade}`,
+            hex: scale[shade].toString(),
             collection,
-            "COLOR"
-          );
-          variable.setValueForMode(modeId, hexToRgbFloat(colorHex));
-          if (shade === baseShade) {
-            basePointsTo = variable;
+            modeId,
+            existingColorVariables,
+          });
+          // If a base shade exisits in the scale and the current shade = base shade, capture the variable to alias to later
+          if (scale["BASE"] && shade === scale["BASE"].toString()) {
+            baseAliasedTo = variable;
           }
         } else if (shade === "BASE") {
-          const baseVariable = figma.variables.createVariable(
-            `${role}-base`,
+          const baseVariable = await createColorVariableOrUseExisitng({
+            name: `${role}-base`,
             collection,
-            "COLOR"
-          );
-          if (basePointsTo !== undefined) {
-            const alias = figma.variables.createVariableAlias(basePointsTo);
+            modeId,
+            existingColorVariables,
+          });
+          // If there's a base shade, set role-base = role-base_shade (e.g. brand-base = brand-500)
+          if (baseAliasedTo !== undefined) {
+            const alias = figma.variables.createVariableAlias(baseAliasedTo);
             baseVariable.setValueForMode(modeId, alias);
           }
         }

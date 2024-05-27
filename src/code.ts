@@ -1,6 +1,6 @@
-import { handleParametersInput } from "./lib/handleParametersInput";
-import { getThemesPromise } from "./lib/data";
 import { createColorVars } from "./lib/create-color-vars";
+import { getThemeByName, getThemesPromise } from "./lib/data";
+import { handleParametersInput } from "./lib/handleParametersInput";
 
 async function run() {
   // Fetch list of themes
@@ -15,11 +15,20 @@ async function run() {
 
   // When user selects a theme name, use theme name to generate theme variables and styles
   figma.on("run", async ({ parameters }: RunEvent) => {
+
+    // Get the theme name from the plugin parameters
     const themeName = parameters?.theme;
 
-    // Create color variables
-    await createColorVars(themeName);
+    // Fetch the theme data 
+    const theme = await getThemeByName(themeName);
+    if (!theme) {
+      console.error("Theme not found");
+      return;
+    }
 
+    // Create color variables
+    await createColorVars(theme);
+    
     // Close the plugin after running
     figma.closePlugin(`Theme created for: ${themeName}`);
   });
