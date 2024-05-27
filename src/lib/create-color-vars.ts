@@ -1,6 +1,6 @@
 import { hexToRgbFloat } from "./utils/colors";
 import { getThemeByName } from "./data";
-import { createCollection } from "./utils/variables";
+import { getCollectionAndModeId } from "./utils/variables";
 
 export async function createColorVars(themeName: string) {
   try {
@@ -13,7 +13,7 @@ export async function createColorVars(themeName: string) {
     // Define the color roles
     const colorRoles = ["brand", "accent", "supplemental", "neutral"];
     // Create a collection for the colors
-    const { collection, modeId } = createCollection("colors");
+    const { collection, modeId } = await getCollectionAndModeId("Colors");
 
     // Create variables for the colors
     colorRoles.forEach((role) => {
