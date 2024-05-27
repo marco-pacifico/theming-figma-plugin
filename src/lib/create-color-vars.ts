@@ -1,5 +1,5 @@
-import { getThemeByName } from "./data";
 import { hexToRgbFloat } from "./utils/colors";
+import { getThemeByName } from "./data";
 import { createCollection } from "./utils/variables";
 
 export async function createColorVars(themeName: string) {
