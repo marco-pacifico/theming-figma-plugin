@@ -10,6 +10,15 @@ import {
 } from "./utils/variables";
 
 export async function createColorSpecimens() {
+  // Remove current color specimens if they exist
+  const exisitngColorWrapper = getNode({
+    name: "Colors",
+    type: "FRAME",
+    parent: figma.currentPage,
+  }) as FrameNode;
+  if (exisitngColorWrapper) {
+    exisitngColorWrapper.remove();
+  }
   // Get color variables in the file
   const colorVariables = await figma.variables.getLocalVariablesAsync("COLOR");
 
@@ -48,6 +57,7 @@ export async function createColorSpecimens() {
   // Create a color chip row for each group
   for (const scale in groupedVariables) {
     const colorHeading = sectionHeading.clone();
+    colorHeading.name = capitalizeFirstLetter(scale);
     colorHeading.characters = capitalizeFirstLetter(scale);
     const variables = groupedVariables[scale];
     const colorChipRow = createColorChipRow();
@@ -65,7 +75,9 @@ export async function createColorSpecimens() {
   }
 
   colorChip.remove();
-  sectionHeading.remove();
+  if (sectionHeading) {
+    sectionHeading.remove();
+  }
 }
 
 async function createColorChip(
