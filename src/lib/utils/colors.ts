@@ -1,9 +1,9 @@
 // **************************************************************
 // Clone an object
 // **************************************************************
-export function clone<T>(val: T) {
-    return JSON.parse(JSON.stringify(val));
-  }
+export function cloneObject<T>(val: T) {
+  return JSON.parse(JSON.stringify(val));
+}
 // **************************************************************
 // Convert HEX as a string to RGB float
 // **************************************************************
@@ -45,9 +45,20 @@ export function componentToHex(c: number): string {
 // **************************************************************
 // Function to convert RGBA to HEX
 // **************************************************************
-export function rgbaToHex(r: number, g: number, b: number): string {
-    const hexR = componentToHex(Math.floor(r * 255));
-    const hexG = componentToHex(Math.floor(g * 255));
-    const hexB = componentToHex(Math.floor(b * 255));
-    return `#${hexR}${hexG}${hexB}`;
-  }
+export function rgbaToHex({
+  r,
+  g,
+  b,
+  a,
+}: {
+  r: number;
+  g: number;
+  b: number;
+  a: number;
+}): string {
+  const hexR = componentToHex(Math.floor(r * 255));
+  const hexG = componentToHex(Math.floor(g * 255));
+  const hexB = componentToHex(Math.floor(b * 255));
+  const hexA = componentToHex(Math.floor(a * 255));
+  return `#${hexR}${hexG}${hexB}${hexA}`;
+}

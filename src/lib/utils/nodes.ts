@@ -1,23 +1,29 @@
-// **************************************************************
-// HELPER FUNCTIONS
-// **************************************************************
+import { NodeWithChildren } from "../types";
 
 // **************************************************************
 // Get an instance of a component from a shared library
 // **************************************************************
-export async function importInstance(key: string) {
-  const importComponent = await figma.importComponentByKeyAsync(key);
-  const component = importComponent.createInstance();
-  return component;
+export async function getInstanceOfComponent(componentKey: string) {
+  const importComponent = await figma.importComponentByKeyAsync(componentKey);
+  const instance = importComponent.createInstance();
+  return instance;
 }
 
 // **************************************************************
 // Get a node by name and type
 // **************************************************************
-// function getNode(name: string, type: string, parent: BaseNode = figma.root) {
-//   // eslint-disable-next-line @figma/figma-plugins/dynamic-page-find-method-advice
-//   const node = parent.findOne(
-//     (node: BaseNode) => node.type === type && node.name === name
-//   );
-//   return node;
-// }
+type TGetNodeArgs = {
+  name: string;
+  type: NodeType;
+  parent?: NodeWithChildren;
+};
+export function getNode({
+  name,
+  type,
+  parent = figma.currentPage,
+}: TGetNodeArgs) {
+  const node = parent.findOne(
+    (node) => node.type === type && node.name === name
+  );
+  return node;
+}
