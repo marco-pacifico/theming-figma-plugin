@@ -1,3 +1,4 @@
+import { createColorSpecimens } from "./lib/color-specimens";
 import { createColorVars } from "./lib/create-color-vars";
 import { getThemeByName, getThemesPromise } from "./lib/data";
 import { handleParametersInput } from "./lib/handleParametersInput";
@@ -28,6 +29,8 @@ async function run() {
 
     // Create color variables
     await createColorVars(theme);
+    // Create color specimens from color variables
+    await createColorSpecimens();
     
     // Close the plugin after running
     figma.closePlugin(`Theme created for: ${themeName}`);

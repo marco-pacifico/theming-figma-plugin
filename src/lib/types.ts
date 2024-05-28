@@ -1,3 +1,16 @@
+export type NodeWithChildren =
+| ComponentNode
+| ComponentSetNode
+| FrameNode
+| PageNode
+| InstanceNode
+| GroupNode
+| SectionNode;
+
+export type NodeWithFills = 
+ FrameNode |
+ TextNode ;
+
 export type ColorScale = {
   [key: string]: string | number;
   BASE: number;

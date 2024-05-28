@@ -1,7 +1,8 @@
 // **************************************************************
 // Create new or use existing collection with the given name
 
-import { hexToRgbFloat } from "./colors";
+import { NodeWithFills } from "../types";
+import { cloneObject, hexToRgbFloat } from "./colors";
 
 // **************************************************************
 export async function getCollectionAndModeId(name: string) {
@@ -66,3 +67,38 @@ export async function createColorVariableOrUseExisitng({
   hex && variable.setValueForMode(modeId, hexToRgbFloat(hex));
   return variable;
 }
+
+
+export function bindColorVariableToNode (colorVariable: Variable, nodeToPaint: NodeWithFills) {
+   // Get the fills of the frame node
+   const fills = nodeToPaint && cloneObject(nodeToPaint.fills);
+   // Set the fill to the variable color
+   fills[0] = figma.variables.setBoundVariableForPaint(
+     fills[0],
+     "color",
+     colorVariable
+   );
+   // Update the fills of the frame node
+   nodeToPaint.fills = fills;
+}
+
+export function groupVariablesByPrefix(colorVariables: Variable[]): Record<string, Variable[]> {
+  return colorVariables.reduce((groups, variable) => {
+    const prefix = getPrefix(variable.name);
+    if (!groups[prefix]) {
+      groups[prefix] = [];
+    }
+    groups[prefix].push(variable);
+    return groups;
+  }, {} as Record<string, Variable[]>);
+}
+
+export function getPrefix(variableName: string): string {
+  const match = variableName.match(/^[^-]+/);
+  return match ? match[0] : "";
+}
+
+export function capitalizeFirstLetter(string: string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
