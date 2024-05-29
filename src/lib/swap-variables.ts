@@ -15,63 +15,57 @@ export default async function swapVariables() {
   component.createInstance();
 
   // Get the existing color variables in the file
-  const exisitingColorVariables = await existingVariables("COLOR");
+  const existingColorVariables = await existingVariables("COLOR");
 
   const nodes = figma.currentPage.findAll();
   const filteredNodes = nodes.filter((node) => node.name !== "Rows/ColorChip");
 
-  const boundedFillsVariables = await Promise.all(
-    filteredNodes.map(async (node) => {
-      const colorVariablesToSwapOut = await Promise.all(
-        node.boundVariables?.fills?.map(async (variable) => {
-          return await figma.variables.getVariableByIdAsync(variable.id);
-        }) || []
-      );
-      return {
-        node,
-        colorVariablesToSwapOut,
-      };
-    })
-  );
 
-  const boundedStokesVariables = await Promise.all(
-    filteredNodes.map(async (node) => {
-      const colorVariablesToSwapOut = await Promise.all(
-        node.boundVariables?.strokes?.map(async (variable) => {
-          return await figma.variables.getVariableByIdAsync(variable.id);
-        }) || []
-      );
-      return {
-        node,
-        colorVariablesToSwapOut,
-      };
-    })
-  );
+  // SWAP FILLS
+  // For each node find any bounded fills variables and swap them out with existing color variable of the same name
+  for (const node of filteredNodes) {
+    const variablesToSwapOut = [];
 
-  // Swap out color variables in strokes
-  boundedStokesVariables.forEach(({ node, colorVariablesToSwapOut }) => {
-    colorVariablesToSwapOut?.forEach((variableToSwapOut) => {
-      const variableToSwapIn = exisitingColorVariables.find(
-        (variable) => variable.name === variableToSwapOut?.name
-      );
-      if (variableToSwapIn) {
-        bindStrokesVariableToNode(variableToSwapIn, node as NodeWithFills);
-      }
-    });
-  });
-
-  // Swap out color variables in fills
-  boundedFillsVariables.forEach(({ node, colorVariablesToSwapOut }) => {
-    colorVariablesToSwapOut?.forEach((variableToSwapOut) => {
-      const variableToSwapIn = exisitingColorVariables.find(
+    // There can be multiple fills per node, so get an array of fill variables to swap out for each node
+    for (const fillVariableAlias of node.boundVariables?.fills || []) {
+      const fillVariable = await figma.variables.getVariableByIdAsync(fillVariableAlias.id);
+      variablesToSwapOut.push(fillVariable);
+    }
+  
+    for (const variableToSwapOut of variablesToSwapOut) {
+      // Swap in the local variable of the same name
+      const variableToSwapIn = existingColorVariables.find(
         (variable) => variable.name === variableToSwapOut?.name
       );
       if (variableToSwapIn) {
         bindFillsVariableToNode(variableToSwapIn, node as NodeWithFills);
       }
-    });
-  });
+    }
+  }
 
+
+  // SWAP STROKES
+  for (const node of filteredNodes) {
+    const variablesToSwapOut = [];
+
+    // There can be multiple strokes per node, so get an array of stroke variables to swap out for each node
+    for (const strokeVariableAlias of node.boundVariables?.strokes || []) {
+      const strokeVariable = await figma.variables.getVariableByIdAsync(strokeVariableAlias.id);
+      variablesToSwapOut.push(strokeVariable);
+    }
+  
+    for (const variableToSwapOut of variablesToSwapOut) {
+      // Swap in the local variable of the same name
+      const variableToSwapIn = existingColorVariables.find(
+        (variable) => variable.name === variableToSwapOut?.name
+      );
+      if (variableToSwapIn) {
+        bindStrokesVariableToNode(variableToSwapIn, node as NodeWithFills);
+      }
+    }
+  }
+
+  // SWAP RADIUS
   // Get the existing color variables in the file
   const existingFloatVariables = await existingVariables("FLOAT");
   // For each node find any bounded radius variables and swap them out with existing float variable of the same name
