@@ -15,60 +15,102 @@ export default async function swapVariables() {
   component.createInstance();
 
   // Get the existing color variables in the file
-  const exisitingColorVariables = await existingVariables("COLOR");
+  const existingColorVariables = await existingVariables("COLOR");
 
   const nodes = figma.currentPage.findAll();
   const filteredNodes = nodes.filter((node) => node.name !== "Rows/ColorChip");
 
-  const boundFillsVariables = await Promise.all(
-    filteredNodes.map(async (node) => {
-      const colorVariablesToSwapOut = await Promise.all(
-        node.boundVariables?.fills?.map(async (variable) => {
-          return await figma.variables.getVariableByIdAsync(variable.id);
-        }) || []
-      );
-      return {
-        node,
-        colorVariablesToSwapOut,
-      };
-    })
-  );
 
-  const boundStokesVariables = await Promise.all(
-    filteredNodes.map(async (node) => {
-      const colorVariablesToSwapOut = await Promise.all(
-        node.boundVariables?.strokes?.map(async (variable) => {
-          return await figma.variables.getVariableByIdAsync(variable.id);
-        }) || []
-      );
-      return {
-        node,
-        colorVariablesToSwapOut,
-      };
-    })
-  );
+  // SWAP FILLS
+  // For each node find any bounded fills variables and swap them out with existing color variable of the same name
+  for (const node of filteredNodes) {
+    const variablesToSwapOut = [];
 
-  // Swap out color variables in strokes
-  boundStokesVariables.forEach(({ node, colorVariablesToSwapOut }) => {
-    colorVariablesToSwapOut?.forEach((variableToSwapOut) => {
-      const variableToSwapIn = exisitingColorVariables.find(
-        (variable) => variable.name === variableToSwapOut?.name
-      );
-      if (variableToSwapIn) {
-        bindStrokesVariableToNode(variableToSwapIn, node as NodeWithFills);
-      }
-    });
-  });
-
-  // Swap out color variables in fills
-  boundFillsVariables.forEach(({ node, colorVariablesToSwapOut }) => {
-    colorVariablesToSwapOut?.forEach((variableToSwapOut) => {
-      const variableToSwapIn = exisitingColorVariables.find(
+    // There can be multiple fills per node, so get an array of fill variables to swap out for each node
+    for (const fillVariableAlias of node.boundVariables?.fills || []) {
+      const fillVariable = await figma.variables.getVariableByIdAsync(fillVariableAlias.id);
+      variablesToSwapOut.push(fillVariable);
+    }
+  
+    for (const variableToSwapOut of variablesToSwapOut) {
+      // Swap in the local variable of the same name
+      const variableToSwapIn = existingColorVariables.find(
         (variable) => variable.name === variableToSwapOut?.name
       );
       if (variableToSwapIn) {
         bindFillsVariableToNode(variableToSwapIn, node as NodeWithFills);
       }
-    });
-  });
+    }
+  }
+
+
+  // SWAP STROKES
+  for (const node of filteredNodes) {
+    const variablesToSwapOut = [];
+
+    // There can be multiple strokes per node, so get an array of stroke variables to swap out for each node
+    for (const strokeVariableAlias of node.boundVariables?.strokes || []) {
+      const strokeVariable = await figma.variables.getVariableByIdAsync(strokeVariableAlias.id);
+      variablesToSwapOut.push(strokeVariable);
+    }
+  
+    for (const variableToSwapOut of variablesToSwapOut) {
+      // Swap in the local variable of the same name
+      const variableToSwapIn = existingColorVariables.find(
+        (variable) => variable.name === variableToSwapOut?.name
+      );
+      if (variableToSwapIn) {
+        bindStrokesVariableToNode(variableToSwapIn, node as NodeWithFills);
+      }
+    }
+  }
+
+  // SWAP RADIUS
+  // Get the existing color variables in the file
+  const existingFloatVariables = await existingVariables("FLOAT");
+  // For each node find any bounded radius variables and swap them out with existing float variable of the same name
+
+  for (const node of filteredNodes) {
+    const boundedRadiusVars = [
+      {
+        field: "topLeftRadius",
+        variable: await figma.variables.getVariableByIdAsync(
+          node.boundVariables?.topLeftRadius?.id || ""
+        ),
+      },
+      {
+        field: "topRightRadius",
+        variable: await figma.variables.getVariableByIdAsync(
+          node.boundVariables?.topRightRadius?.id || ""
+        ),
+      },
+      {
+        field: "bottomLeftRadius",
+        variable: await figma.variables.getVariableByIdAsync(
+          node.boundVariables?.bottomLeftRadius?.id || ""
+        ),
+      },
+      {
+        field: "bottomRightRadius",
+        variable: await figma.variables.getVariableByIdAsync(
+          node.boundVariables?.bottomRightRadius?.id || ""
+        ),
+      },
+    ];
+
+    for (const { field, variable } of boundedRadiusVars) {
+      // Find the existing float variable with the same name as the variable to swap out
+      const variableToSwapIn = existingFloatVariables.find(
+        (existingVariable) => existingVariable.name === variable?.name
+      );
+
+      // If a variable with the same name is found, swap it out
+      if (variableToSwapIn) {
+        node.setBoundVariable(
+          field as VariableBindableNodeField,
+          variableToSwapIn
+        );
+      }
+    }
+  }
 }
