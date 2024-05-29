@@ -6,11 +6,9 @@ import {
 
 export async function createColorVars(theme: Theme) {
   try {
-    // Define the color roles
-    const COLOR_ROLES = ["brand", "accent", "supplemental", "neutral"];
-
+    
     // Create a collection for the colors or use existing collection if it exists
-    const { collection, modeId } = await getCollectionAndModeId("Colors");
+    const { collection, modeId } = await getCollectionAndModeId("_Colors");
 
     // Get the existing color variables in the file
     // Need this to check if a variable already exists
@@ -18,8 +16,10 @@ export async function createColorVars(theme: Theme) {
       "COLOR"
     );
 
+    // Define the color roles
+    const COLOR_ROLES = ["brand", "accent", "supplemental", "neutral"];
     // Create variables for the colors
-    COLOR_ROLES.forEach(async (role) => {
+    for (const role of COLOR_ROLES) {
       const scale = theme[role] as ColorScale;
 
       // Needed to capture the shade that the base shade will be aliased to later
@@ -53,7 +53,7 @@ export async function createColorVars(theme: Theme) {
           }
         }
       }
-    });
+    }
   } catch (error) {
     console.error("Error creating color variables:", error);
   }

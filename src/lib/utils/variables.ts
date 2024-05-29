@@ -69,6 +69,38 @@ export async function createColorVariableOrUseExisitng({
   return variable;
 }
 
+type TCreateRadiusVariablesOrUpdateExisitng = {
+  name: string;
+  value: string;
+  collection: VariableCollection;
+  modeId: string;
+  existingFloatVariables: Variable[];
+};
+export async function createRadiusVariableOrUseExisitng({
+  name,
+  value,
+  collection,
+  modeId,
+  existingFloatVariables,
+}: TCreateRadiusVariablesOrUpdateExisitng) {
+  if (existingVariables && existingVariables.length > 0) {
+    // Check if a variable with the same name already exists
+    const existingVariable = existingFloatVariables.find(
+      (variable) => variable.name === name
+    );
+    if (existingVariable) {
+      // Update the existing variable with the same name
+      value && existingVariable.setValueForMode(modeId, convertToPixels(value));
+      return existingVariable;
+    }
+  }
+  // Create a new variable if no variables exist
+  const variable = figma.variables.createVariable(name, collection, "FLOAT");
+  value && variable.setValueForMode(modeId, convertToPixels(value));
+  return variable;
+}
+
+
 
 export function bindFillsVariableToNode (colorVariable: Variable, nodeToPaint: NodeWithFills) {
    // Clone the fills of the nodeToPaint
@@ -116,28 +148,15 @@ export function capitalizeFirstLetter(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-// interface HasFills {
-//   fills: VariableAlias[];
-// }
-
-// export function filterDataWithFills<T>(data: T[]): HasFills[] {
-//   return data.filter((item): item is HasFills => 'fills' in item);
-// }
-
-// export function getVariableIdsForFills(data: HasFills[]): string[] {
-//   const variableIds: string[] = [];
-
-//   data.forEach(item => {
-//     item.fills.forEach(fill => {
-//       if (fill.id) {
-//         variableIds.push(fill.id);
-//       }
-//     });
-//   });
-
-//   return variableIds;
-// }
-
+export function convertToPixels(value: string): number {
+  if (value.endsWith('px')) {
+      return parseFloat(value.replace('px', ''));
+  } else if (value.endsWith('rem')) {
+      return parseFloat(value.replace('rem', '')) * 16;
+  } else {
+      return parseFloat(value);
+  }
+}
 
 export function getVariableIdsForFills(data: BoundVariables[]) {
   const variableIds: string[] = [];
