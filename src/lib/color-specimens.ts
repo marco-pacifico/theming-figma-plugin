@@ -3,7 +3,7 @@ import { cloneObject, rgbaToHex } from "./utils/colors";
 import { loadFonts } from "./utils/fonts";
 import { getInstanceOfComponent, getNode } from "./utils/nodes";
 import {
-  bindColorVariableToNode,
+  bindFillsVariableToNode,
   getCollectionAndModeId,
   groupVariablesByPrefix,
   capitalizeFirstLetter,
@@ -134,7 +134,7 @@ async function createColorChip(
     type: "FRAME",
     parent: colorChipInstance,
   }) as FrameNode;
-  bindColorVariableToNode(colorVariable, colorSpecimenFrame);
+  bindFillsVariableToNode(colorVariable, colorSpecimenFrame);
 
   return colorChipInstance;
 }
