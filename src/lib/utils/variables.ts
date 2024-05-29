@@ -1,3 +1,4 @@
+import { BoundVariables } from "../types";
 // **************************************************************
 // Create new or use existing collection with the given name
 
@@ -102,3 +103,45 @@ export function capitalizeFirstLetter(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+// interface HasFills {
+//   fills: VariableAlias[];
+// }
+
+// export function filterDataWithFills<T>(data: T[]): HasFills[] {
+//   return data.filter((item): item is HasFills => 'fills' in item);
+// }
+
+// export function getVariableIdsForFills(data: HasFills[]): string[] {
+//   const variableIds: string[] = [];
+
+//   data.forEach(item => {
+//     item.fills.forEach(fill => {
+//       if (fill.id) {
+//         variableIds.push(fill.id);
+//       }
+//     });
+//   });
+
+//   return variableIds;
+// }
+
+
+export function getVariableIdsForFills(data: BoundVariables[]) {
+  const variableIds: string[] = [];
+  if (!Array.isArray(data)) {
+    console.error('Expected data to be an array:', data);
+    return variableIds;
+  }
+
+  data.forEach(item => {
+    if (Array.isArray(item.fills)) {
+      item.fills.forEach(fill => {
+        if (fill.id) {
+          variableIds.push(fill.id);
+        }
+      });
+    }
+  });
+
+  return variableIds;
+}

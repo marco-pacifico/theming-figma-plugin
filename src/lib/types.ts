@@ -1,15 +1,26 @@
 export type NodeWithChildren =
-| ComponentNode
-| ComponentSetNode
-| FrameNode
-| PageNode
-| InstanceNode
-| GroupNode
-| SectionNode;
+  | ComponentNode
+  | ComponentSetNode
+  | FrameNode
+  | PageNode
+  | InstanceNode
+  | GroupNode
+  | SectionNode;
 
-export type NodeWithFills = 
- FrameNode |
- TextNode ;
+export type NodeWithFills = FrameNode | TextNode | InstanceNode;
+
+export type NodeFields = {
+  readonly [field in VariableBindableNodeField]?: VariableAlias;
+}
+
+export type BoundVariables = NodeFields & {
+  readonly fills: VariableAlias[];
+  readonly strokes: VariableAlias[];
+  readonly effects: VariableAlias[];
+  readonly layoutGrids: VariableAlias[];
+  readonly componentProperties: { [propertyName: string]: VariableAlias };
+  readonly textRangeFills: VariableAlias[];
+}
 
 export type ColorScale = {
   [key: string]: string | number;
