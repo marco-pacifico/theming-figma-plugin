@@ -11,7 +11,7 @@ export type NodeWithFills = FrameNode | TextNode | InstanceNode;
 
 export type NodeFields = {
   readonly [field in VariableBindableNodeField]?: VariableAlias;
-}
+};
 
 export type BoundVariables = NodeFields & {
   readonly fills: VariableAlias[];
@@ -20,7 +20,7 @@ export type BoundVariables = NodeFields & {
   readonly layoutGrids: VariableAlias[];
   readonly componentProperties: { [propertyName: string]: VariableAlias };
   readonly textRangeFills: VariableAlias[];
-}
+};
 
 export type ColorScale = {
   [key: string]: string | number;
@@ -41,6 +41,7 @@ export type ColorScale = {
 export type NeutralScale = Omit<ColorScale, "BASE">;
 
 export type RadiusScale = {
+  [key: string]: string;
   BASE: string;
   xs: string;
   sm: string;
@@ -49,6 +50,7 @@ export type RadiusScale = {
 };
 
 export type Heading = {
+  [key: string]: string;
   font: string;
   weight: string;
   style: string;

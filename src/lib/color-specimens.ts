@@ -26,7 +26,7 @@ export async function createColorSpecimens() {
   const groupedVariables = groupVariablesByPrefix(colorVariables);
 
   // Get color collection mode id
-  const { modeId } = await getCollectionAndModeId("Colors");
+  const { modeId } = await getCollectionAndModeId("_Colors");
 
   // Get component instances needed for documentation
   const colorChip = await getInstanceOfComponent(componentKeys.colorChip);

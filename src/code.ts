@@ -1,5 +1,6 @@
 import { createColorSpecimens } from "./lib/color-specimens";
 import { createColorVars } from "./lib/create-color-vars";
+import { createRadiusVars } from "./lib/create-radius-vars";
 import { getThemeByName, getThemesPromise } from "./lib/data";
 import { handleParametersInput } from "./lib/handleParametersInput";
 import swapVariables from "./lib/swap-variables";
@@ -26,13 +27,14 @@ async function run() {
     // Fetch the theme data
     const theme = await getThemeByName(themeName);
 
-    // Create color variables
+    // Create variables
     await createColorVars(theme);
+    await createRadiusVars(theme);
 
-    // Create color specimens from color variables
+    // Create specimens
     await createColorSpecimens();
 
-    // Swap variables of library components in the file
+    // Swap bounded variables 
     await swapVariables();
     
     // Close the plugin after running
