@@ -70,8 +70,8 @@ export async function createColorVariableOrUseExisitng({
 }
 
 
-export function bindColorVariableToNode (colorVariable: Variable, nodeToPaint: NodeWithFills) {
-   // Get the fills of the frame node
+export function bindFillsVariableToNode (colorVariable: Variable, nodeToPaint: NodeWithFills) {
+   // Clone the fills of the nodeToPaint
    const fills = nodeToPaint && cloneObject(nodeToPaint.fills);
    // Set the fill to the variable color
    fills[0] = figma.variables.setBoundVariableForPaint(
@@ -79,8 +79,21 @@ export function bindColorVariableToNode (colorVariable: Variable, nodeToPaint: N
      "color",
      colorVariable
    );
-   // Update the fills of the frame node
+   // Update the fills of the nodeToPain
    nodeToPaint.fills = fills;
+}
+
+export function bindStrokesVariableToNode (colorVariable: Variable, nodeToPaint: NodeWithFills) {
+  // Clone the strokes of the nodeToPaint
+  const clonedStrokes = nodeToPaint && cloneObject(nodeToPaint.strokes);
+  // Set the stroke to the variable color
+  clonedStrokes[0] = figma.variables.setBoundVariableForPaint(
+    clonedStrokes[0],
+    "color",
+    colorVariable
+  );
+  // Update the fills of the frame node
+  nodeToPaint.strokes = clonedStrokes;
 }
 
 export function groupVariablesByPrefix(colorVariables: Variable[]): Record<string, Variable[]> {
