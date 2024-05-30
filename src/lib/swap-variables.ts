@@ -1,5 +1,6 @@
 import { componentKeys } from "./component-keys";
 import { NodeWithFills } from "./types";
+import { removeExistingNode } from "./utils/nodes";
 import {
   bindFillsVariableToNode,
   bindStrokesVariableToNode,
@@ -7,6 +8,11 @@ import {
 } from "./utils/variables";
 
 export default async function swapVariables() {
+  removeExistingNode({
+    name: "Testing",
+    type: "INSTANCE",
+  });
+  
   // Import a component by key
   const component = await figma.importComponentByKeyAsync(
     componentKeys.testing
