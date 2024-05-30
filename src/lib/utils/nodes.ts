@@ -28,3 +28,14 @@ export function getNode({
   return node;
 }
 
+// **************************************************************
+// Remove exisitng node
+// **************************************************************
+export function removeExistingNode({
+  name,
+  type,
+  parent = figma.currentPage,
+}: TGetNodeArgs) {
+  const existingNode = getNode({ name, type, parent });
+  existingNode && existingNode.remove();
+}

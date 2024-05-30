@@ -1,7 +1,7 @@
 import { componentKeys } from "./component-keys";
 import { cloneObject, rgbaToHex } from "./utils/colors";
 import { loadFonts } from "./utils/fonts";
-import { getInstanceOfComponent, getNode } from "./utils/nodes";
+import { getInstanceOfComponent, getNode, removeExistingNode } from "./utils/nodes";
 import {
   bindFillsVariableToNode,
   getCollectionAndModeId,
@@ -11,14 +11,11 @@ import {
 
 export async function createColorSpecimens() {
   // Remove current color specimens if they exist
-  const exisitngColorWrapper = getNode({
+  removeExistingNode({
     name: "Colors",
     type: "FRAME",
-    parent: figma.currentPage,
-  }) as FrameNode;
-  if (exisitngColorWrapper) {
-    exisitngColorWrapper.remove();
-  }
+  });
+  
   // Get color variables in the file
   const colorVariables = await figma.variables.getLocalVariablesAsync("COLOR");
 
