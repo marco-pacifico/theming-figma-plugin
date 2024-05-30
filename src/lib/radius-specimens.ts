@@ -102,4 +102,6 @@ export async function createRadiusSpecimens() {
   }
   // Remove imported Radius Scale component
   radiusScale.remove();
+
+  return radiusWrapper;
 }

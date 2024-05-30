@@ -1,12 +1,16 @@
 import { componentKeys } from "./component-keys";
 import { cloneObject, rgbaToHex } from "./utils/colors";
 import { loadFonts } from "./utils/fonts";
-import { getInstanceOfComponent, getNode, removeExistingNode } from "./utils/nodes";
+import {
+  getInstanceOfComponent,
+  getNode,
+  removeExistingNode,
+} from "./utils/nodes";
 import {
   bindFillsVariableToNode,
+  capitalizeFirstLetter,
   getCollectionAndModeId,
   groupVariablesByPrefix,
-  capitalizeFirstLetter,
 } from "./utils/variables";
 
 export async function createColorSpecimens() {
@@ -15,7 +19,7 @@ export async function createColorSpecimens() {
     name: "Colors",
     type: "FRAME",
   });
-  
+
   // Get color variables in the file
   const colorVariables = await figma.variables.getLocalVariablesAsync("COLOR");
 
@@ -75,6 +79,8 @@ export async function createColorSpecimens() {
   if (sectionHeading) {
     sectionHeading.remove();
   }
+
+  return colorWrapper;
 }
 
 async function createColorChip(
