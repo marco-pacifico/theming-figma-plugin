@@ -9,10 +9,11 @@ import {
 } from "../utils/nodes";
 
 export default async function createThemeSpecimen(themeName: string) {
-  // Remove current radius specimens if they exist
+  // Remove current theme specimens if they exist
   removeExistingNode({
     name: "Theme",
     type: "FRAME",
+    parent: figma.currentPage,
   });
 
   // Get component instances needed for documentation

@@ -1,6 +1,7 @@
 import createThemeSpecimen from "./lib/create-specimens/create-theme-specimen";
 import createColorVars from "./lib/create-vars/create-color-vars";
 import createRadiusVars from "./lib/create-vars/create-radius-vars";
+import createTypographyVars from "./lib/create-vars/create-typography-vars";
 import { getThemeByName, getThemesPromise } from "./lib/data";
 import { handleParametersInput } from "./lib/handleParametersInput";
 import swapVariables from "./lib/swap-variables";
@@ -18,7 +19,6 @@ async function run() {
 
   // When user selects a theme name, use theme name to generate theme variables and styles
   figma.on("run", async ({ parameters }: RunEvent) => {
-    
     // Get the theme name from the plugin parameters
     const themeName = parameters?.theme;
 
@@ -31,15 +31,16 @@ async function run() {
     // Create variables
     await createColorVars(theme);
     await createRadiusVars(theme);
+    await createTypographyVars(theme);
 
     // Create specimens
     await createThemeSpecimen(themeName);
 
-    // Swap bounded variables 
+    // Swap bounded variables
     await swapVariables();
 
     // arrangeNodesOnPage();
-    
+
     // Close the plugin after running
     figma.closePlugin(`Theme created for: ${themeName}`);
   });

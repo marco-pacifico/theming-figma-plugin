@@ -1,7 +1,7 @@
 import { componentKeys } from "../component-keys";
 import { cloneObject, rgbaToHex } from "../utils/formatting";
 import { loadFonts } from "../utils/fonts";
-import { capitalizeFirstLetter } from "../utils/formatting";
+import { capitalizeFirstLetter, groupVariablesByPrefix } from "../utils/formatting";
 import {
   getInstanceOfComponent,
   getNode,
@@ -10,7 +10,6 @@ import {
 import {
   bindFillsVariableToNode,
   getCollectionAndModeId,
-  groupVariablesByPrefix,
 } from "../utils/variables";
 
 export default async function createColorSpecimens() {

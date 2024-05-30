@@ -69,6 +69,27 @@ export function componentToHex(c: number): string {
 }
 
 // **************************************************************
+// Group by prefix
+// **************************************************************
+export function groupVariablesByPrefix(
+  colorVariables: Variable[]
+) {
+  return colorVariables.reduce((groups, variable) => {
+    const prefix = getPrefix(variable.name);
+    if (!groups[prefix]) {
+      groups[prefix] = [];
+    }
+    groups[prefix].push(variable);
+    return groups;
+  }, {} as Record<string, Variable[]>);
+}
+
+export function getPrefix(variableName: string): string {
+  const match = variableName.match(/^[^-]+/);
+  return match ? match[0] : "";
+}
+
+// **************************************************************
 // Function to remove A from RGB
 // **************************************************************
 // type RGBObject = { a: number; r: number; g: number; b: number };

@@ -1,4 +1,3 @@
-import { BoundVariables } from "../types";
 import { NodeWithFills } from "../types";
 import { cloneObject } from "./formatting";
 
@@ -92,42 +91,4 @@ export function bindStrokesVariableToNode(
   );
   // Update the fills of the frame node
   nodeToPaint.strokes = clonedStrokes;
-}
-
-export function groupVariablesByPrefix(
-  colorVariables: Variable[]
-): Record<string, Variable[]> {
-  return colorVariables.reduce((groups, variable) => {
-    const prefix = getPrefix(variable.name);
-    if (!groups[prefix]) {
-      groups[prefix] = [];
-    }
-    groups[prefix].push(variable);
-    return groups;
-  }, {} as Record<string, Variable[]>);
-}
-
-export function getPrefix(variableName: string): string {
-  const match = variableName.match(/^[^-]+/);
-  return match ? match[0] : "";
-}
-
-
-
-export function getVariableIdsForFills(data: BoundVariables[]) {
-  const variableIds: string[] = [];
-  if (!Array.isArray(data)) {
-    console.error("Expected data to be an array:", data);
-    return variableIds;
-  }
-  data.forEach((item) => {
-    if (Array.isArray(item.fills)) {
-      item.fills.forEach((fill) => {
-        if (fill.id) {
-          variableIds.push(fill.id);
-        }
-      });
-    }
-  });
-  return variableIds;
 }

@@ -1,12 +1,12 @@
 import { Theme } from "../types";
-import { getPixelValue } from "../utils/formatting";
 import { getCollectionAndModeId } from "../utils/variables";
+import { getPixelValue } from "../utils/formatting";
 
 export default async function createRadiusVars(theme: Theme) {
   // Create a collection for the radius variables or use existing collection if it exists
   const { collection, modeId } = await getCollectionAndModeId("_Radius");
 
-  // Get the existing color variables in the file
+  // Get the existing float variables in the file
   // Need this to check if a variable already exists
   const existingFloatVariables = await figma.variables.getLocalVariablesAsync(
     "FLOAT"
