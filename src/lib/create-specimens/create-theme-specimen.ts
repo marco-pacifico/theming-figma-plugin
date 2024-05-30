@@ -1,18 +1,19 @@
-import { createColorSpecimens } from "./color-specimens";
-import { componentKeys } from "./component-keys";
-import { createRadiusSpecimens } from "./radius-specimens";
-import { loadFonts } from "./utils/fonts";
+import { componentKeys } from "../component-keys";
+import createColorSpecimens from "./create-color-specimens";
+import createRadiusSpecimens  from "./create-radius-specimens";
+import { loadFonts } from "../utils/fonts";
 import {
   getInstanceOfComponent,
   getNode,
   removeExistingNode,
-} from "./utils/nodes";
+} from "../utils/nodes";
 
 export default async function createThemeSpecimen(themeName: string) {
-  // Remove current radius specimens if they exist
+  // Remove current theme specimens if they exist
   removeExistingNode({
     name: "Theme",
     type: "FRAME",
+    parent: figma.currentPage,
   });
 
   // Get component instances needed for documentation

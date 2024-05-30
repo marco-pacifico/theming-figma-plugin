@@ -1,16 +1,16 @@
-import { componentKeys } from "./component-keys";
-import { loadFonts } from "./utils/fonts";
+import { componentKeys } from "../component-keys";
+import { loadFonts } from "../utils/fonts";
 import {
   getInstanceOfComponent,
   getNode,
   removeExistingNode,
-} from "./utils/nodes";
+} from "../utils/nodes";
 import {
   getCollectionAndModeId,
   getVariablesInCollection,
-} from "./utils/variables";
+} from "../utils/variables";
 
-export async function createRadiusSpecimens() {
+export default async function createRadiusSpecimens() {
   // Remove current radius specimens if they exist
   removeExistingNode({
     name: "Radius",

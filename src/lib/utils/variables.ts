@@ -1,6 +1,5 @@
-import { BoundVariables } from "../types";
 import { NodeWithFills } from "../types";
-import { cloneObject, hexToRgbFloat } from "./colors";
+import { cloneObject } from "./formatting";
 
 // **************************************************************
 // Create new or use existing collection with the given name
@@ -41,14 +40,14 @@ export async function getVariablesInCollection(collectionName: string) {
   // Get all the existing collections in the file
   const existingCollections =
     await figma.variables.getLocalVariableCollectionsAsync();
-  // Check if a collection with the same name already exists
+  // Get the collection with the given name
   const collection = existingCollections.find(
     (collection) => collection.name === collectionName
   );
+  // Get the variable ids in the collection
   const variableIdsInCollection = collection?.variableIds || [];
-
+  // Get variables using the variable ids
   const variablesInCollection = [];
-
   for (const variableId of variableIdsInCollection) {
     const variable = await figma.variables.getVariableByIdAsync(variableId);
     variablesInCollection.push(variable);
@@ -57,72 +56,8 @@ export async function getVariablesInCollection(collectionName: string) {
 }
 
 // **************************************************************
-// Create a new variable or update an existing variable with the same name
+// Bind color variable to fills in a node
 // **************************************************************
-type TCreateColorVariablesOrUpdateExisitng = {
-  name: string;
-  hex?: string;
-  collection: VariableCollection;
-  modeId: string;
-  existingColorVariables: Variable[];
-};
-export async function createColorVariableOrUseExisitng({
-  name,
-  hex,
-  collection,
-  modeId,
-  existingColorVariables,
-}: TCreateColorVariablesOrUpdateExisitng) {
-  if (existingVariables && existingVariables.length > 0) {
-    // Check if a variable with the same name already exists
-    const existingVariable = existingColorVariables.find(
-      (variable) => variable.name === name
-    );
-    if (existingVariable) {
-      // Update the existing variable with the same name
-      hex && existingVariable.setValueForMode(modeId, hexToRgbFloat(hex));
-      return existingVariable;
-    }
-  }
-  // Create a new variable if no variables exist
-  const variable = figma.variables.createVariable(name, collection, "COLOR");
-  hex && variable.setValueForMode(modeId, hexToRgbFloat(hex));
-  return variable;
-}
-
-type TCreateRadiusVariablesOrUpdateExisitng = {
-  name: string;
-  value: string;
-  collection: VariableCollection;
-  modeId: string;
-  existingFloatVariables: Variable[];
-};
-export async function createRadiusVariableOrUseExisitng({
-  name,
-  value,
-  collection,
-  modeId,
-  existingFloatVariables,
-}: TCreateRadiusVariablesOrUpdateExisitng) {
-  if (existingVariables && existingVariables.length > 0) {
-    // Check if a variable with the same name already exists
-    const existingVariable = existingFloatVariables.find(
-      (variable) => variable.name === name
-    );
-    if (existingVariable) {
-      // Update the existing variable with the same name
-      value && existingVariable.setValueForMode(modeId, convertToPixels(value));
-      existingVariable.scopes = ["CORNER_RADIUS"];
-      return existingVariable;
-    }
-  }
-  // Create a new variable if no variables exist
-  const variable = figma.variables.createVariable(name, collection, "FLOAT");
-  value && variable.setValueForMode(modeId, convertToPixels(value));
-  variable.scopes = ["CORNER_RADIUS"];
-  return variable;
-}
-
 export function bindFillsVariableToNode(
   colorVariable: Variable,
   nodeToPaint: NodeWithFills
@@ -139,6 +74,9 @@ export function bindFillsVariableToNode(
   nodeToPaint.fills = fills;
 }
 
+// **************************************************************
+//  Bind color variable to strokes in a node
+// **************************************************************
 export function bindStrokesVariableToNode(
   colorVariable: Variable,
   nodeToPaint: NodeWithFills
@@ -153,56 +91,4 @@ export function bindStrokesVariableToNode(
   );
   // Update the fills of the frame node
   nodeToPaint.strokes = clonedStrokes;
-}
-
-export function groupVariablesByPrefix(
-  colorVariables: Variable[]
-): Record<string, Variable[]> {
-  return colorVariables.reduce((groups, variable) => {
-    const prefix = getPrefix(variable.name);
-    if (!groups[prefix]) {
-      groups[prefix] = [];
-    }
-    groups[prefix].push(variable);
-    return groups;
-  }, {} as Record<string, Variable[]>);
-}
-
-export function getPrefix(variableName: string): string {
-  const match = variableName.match(/^[^-]+/);
-  return match ? match[0] : "";
-}
-
-export function capitalizeFirstLetter(string: string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
-export function convertToPixels(value: string): number {
-  if (value.endsWith("px")) {
-    return parseFloat(value.replace("px", ""));
-  } else if (value.endsWith("rem")) {
-    return parseFloat(value.replace("rem", "")) * 16;
-  } else {
-    return parseFloat(value);
-  }
-}
-
-export function getVariableIdsForFills(data: BoundVariables[]) {
-  const variableIds: string[] = [];
-  if (!Array.isArray(data)) {
-    console.error("Expected data to be an array:", data);
-    return variableIds;
-  }
-
-  data.forEach((item) => {
-    if (Array.isArray(item.fills)) {
-      item.fills.forEach((fill) => {
-        if (fill.id) {
-          variableIds.push(fill.id);
-        }
-      });
-    }
-  });
-
-  return variableIds;
 }

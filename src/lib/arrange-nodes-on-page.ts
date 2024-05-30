@@ -1,4 +1,4 @@
-import { cloneObject } from "./utils/colors";
+import { cloneObject } from "./utils/formatting";
 
 export function arrangeNodesOnPage() {
   const parent = figma.createFrame();

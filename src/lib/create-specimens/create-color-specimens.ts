@@ -1,19 +1,18 @@
-import { componentKeys } from "./component-keys";
-import { cloneObject, rgbaToHex } from "./utils/colors";
-import { loadFonts } from "./utils/fonts";
+import { componentKeys } from "../component-keys";
+import { cloneObject, rgbaToHex } from "../utils/formatting";
+import { loadFonts } from "../utils/fonts";
+import { capitalizeFirstLetter, groupVariablesByPrefix } from "../utils/formatting";
 import {
   getInstanceOfComponent,
   getNode,
   removeExistingNode,
-} from "./utils/nodes";
+} from "../utils/nodes";
 import {
   bindFillsVariableToNode,
-  capitalizeFirstLetter,
   getCollectionAndModeId,
-  groupVariablesByPrefix,
-} from "./utils/variables";
+} from "../utils/variables";
 
-export async function createColorSpecimens() {
+export default async function createColorSpecimens() {
   // Remove current color specimens if they exist
   removeExistingNode({
     name: "Colors",
