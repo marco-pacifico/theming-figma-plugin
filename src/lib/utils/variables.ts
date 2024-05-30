@@ -112,12 +112,14 @@ export async function createRadiusVariableOrUseExisitng({
     if (existingVariable) {
       // Update the existing variable with the same name
       value && existingVariable.setValueForMode(modeId, convertToPixels(value));
+      existingVariable.scopes = ["CORNER_RADIUS"];
       return existingVariable;
     }
   }
   // Create a new variable if no variables exist
   const variable = figma.variables.createVariable(name, collection, "FLOAT");
   value && variable.setValueForMode(modeId, convertToPixels(value));
+  variable.scopes = ["CORNER_RADIUS"];
   return variable;
 }
 
