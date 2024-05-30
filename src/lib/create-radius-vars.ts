@@ -1,5 +1,5 @@
 import { Theme } from "./types";
-import { getCollectionAndModeId, createRadiusVariableOrUseExisitng } from "./utils/variables";
+import { convertToPixels, getCollectionAndModeId } from "./utils/variables";
 
 export async function createRadiusVars(theme: Theme) {
   // Create a collection for the radius variables or use existing collection if it exists
@@ -11,7 +11,7 @@ export async function createRadiusVars(theme: Theme) {
     "FLOAT"
   );
   for (const radiusName in theme.radius) {
-    createRadiusVariableOrUseExisitng({
+    createRadiusVariable({
         name: `radius-${radiusName.toLowerCase()}`,
         value: theme.radius[radiusName].toString(),
         collection,
@@ -19,4 +19,39 @@ export async function createRadiusVars(theme: Theme) {
         existingFloatVariables,
     });
   }
+}
+
+// **************************************************************
+// Create a new variable or update an existing variable with the same name
+// **************************************************************
+async function createRadiusVariable({
+  name,
+  value,
+  collection,
+  modeId,
+  existingFloatVariables,
+}: {
+  name: string;
+  value: string;
+  collection: VariableCollection;
+  modeId: string;
+  existingFloatVariables: Variable[];
+}) {
+  if (existingFloatVariables && existingFloatVariables.length > 0) {
+    // Check if a variable with the same name already exists
+    const existingVariable = existingFloatVariables.find(
+      (variable) => variable.name === name
+    );
+    if (existingVariable) {
+      // Update the existing variable with the same name
+      value && existingVariable.setValueForMode(modeId, convertToPixels(value));
+      existingVariable.scopes = ["CORNER_RADIUS"];
+      return existingVariable;
+    }
+  }
+  // Create a new variable if no variables exist
+  const variable = figma.variables.createVariable(name, collection, "FLOAT");
+  value && variable.setValueForMode(modeId, convertToPixels(value));
+  variable.scopes = ["CORNER_RADIUS"];
+  return variable;
 }

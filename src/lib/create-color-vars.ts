@@ -1,7 +1,7 @@
 import { ColorScale, Theme } from "./types";
+import { hexToRgbFloat } from "./utils/colors";
 import {
   getCollectionAndModeId,
-  createColorVariableOrUseExisitng,
 } from "./utils/variables";
 
 export async function createColorVars(theme: Theme) {
@@ -28,7 +28,7 @@ export async function createColorVars(theme: Theme) {
       for (const shade in scale) {
         if (shade !== "BASE") {
           // Create new variable or update existing variable with the same name
-          const variable = await createColorVariableOrUseExisitng({
+          const variable = await createColorVariable({
             name: `${role}-${shade}`,
             hex: scale[shade].toString(),
             collection,
@@ -40,7 +40,7 @@ export async function createColorVars(theme: Theme) {
             baseAliasedTo = variable;
           }
         } else if (shade === "BASE") {
-          const baseVariable = await createColorVariableOrUseExisitng({
+          const baseVariable = await createColorVariable({
             name: `${role}-base`,
             collection,
             modeId,
@@ -57,4 +57,38 @@ export async function createColorVars(theme: Theme) {
   } catch (error) {
     console.error("Error creating color variables:", error);
   }
+}
+
+
+// **************************************************************
+// Create a new variable or update an existing variable with the same name
+// **************************************************************
+async function createColorVariable({
+  name,
+  hex,
+  collection,
+  modeId,
+  existingColorVariables,
+}: {
+  name: string;
+  hex?: string;
+  collection: VariableCollection;
+  modeId: string;
+  existingColorVariables: Variable[];
+}) {
+  if (existingColorVariables && existingColorVariables.length > 0) {
+    // Check if a variable with the same name already exists
+    const existingVariable = existingColorVariables.find(
+      (variable) => variable.name === name
+    );
+    if (existingVariable) {
+      // Update the existing variable with the same name
+      hex && existingVariable.setValueForMode(modeId, hexToRgbFloat(hex));
+      return existingVariable;
+    }
+  }
+  // Create a new variable if no variables exist
+  const variable = figma.variables.createVariable(name, collection, "COLOR");
+  hex && variable.setValueForMode(modeId, hexToRgbFloat(hex));
+  return variable;
 }
