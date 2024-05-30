@@ -1,7 +1,6 @@
-import { arrangeNodesOnPage } from "./lib/arrange-nodes-on-page";
-import { createColorVars } from "./lib/create-color-vars";
-import { createRadiusVars } from "./lib/create-radius-vars";
-import createThemeSpecimen from "./lib/create-theme-specimen";
+import createThemeSpecimen from "./lib/create-specimens/create-theme-specimen";
+import createColorVars from "./lib/create-vars/create-color-vars";
+import createRadiusVars from "./lib/create-vars/create-radius-vars";
 import { getThemeByName, getThemesPromise } from "./lib/data";
 import { handleParametersInput } from "./lib/handleParametersInput";
 import swapVariables from "./lib/swap-variables";

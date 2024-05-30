@@ -1,6 +1,6 @@
 import { BoundVariables } from "../types";
 import { NodeWithFills } from "../types";
-import { cloneObject } from "./colors";
+import { cloneObject } from "./formatting";
 
 // **************************************************************
 // Create new or use existing collection with the given name
@@ -112,19 +112,6 @@ export function getPrefix(variableName: string): string {
   return match ? match[0] : "";
 }
 
-export function capitalizeFirstLetter(string: string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
-export function convertToPixels(value: string): number {
-  if (value.endsWith("px")) {
-    return parseFloat(value.replace("px", ""));
-  } else if (value.endsWith("rem")) {
-    return parseFloat(value.replace("rem", "")) * 16;
-  } else {
-    return parseFloat(value);
-  }
-}
 
 
 export function getVariableIdsForFills(data: BoundVariables[]) {

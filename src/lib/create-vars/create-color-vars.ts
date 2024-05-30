@@ -1,10 +1,10 @@
-import { ColorScale, Theme } from "./types";
-import { hexToRgbFloat } from "./utils/colors";
+import { ColorScale, Theme } from "../types";
+import { hexToRgbFloat } from "../utils/formatting";
 import {
-  getCollectionAndModeId,
-} from "./utils/variables";
+    getCollectionAndModeId,
+} from "../utils/variables";
 
-export async function createColorVars(theme: Theme) {
+export default async function createColorVars(theme: Theme) {
   try {
     
     // Create a collection for the colors or use existing collection if it exists

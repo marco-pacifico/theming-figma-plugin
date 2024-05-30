@@ -1,7 +1,8 @@
-import { Theme } from "./types";
-import { convertToPixels, getCollectionAndModeId } from "./utils/variables";
+import { Theme } from "../types";
+import { getPixelValue } from "../utils/formatting";
+import { getCollectionAndModeId } from "../utils/variables";
 
-export async function createRadiusVars(theme: Theme) {
+export default async function createRadiusVars(theme: Theme) {
   // Create a collection for the radius variables or use existing collection if it exists
   const { collection, modeId } = await getCollectionAndModeId("_Radius");
 
@@ -44,14 +45,14 @@ async function createRadiusVariable({
     );
     if (existingVariable) {
       // Update the existing variable with the same name
-      value && existingVariable.setValueForMode(modeId, convertToPixels(value));
+      value && existingVariable.setValueForMode(modeId, getPixelValue(value));
       existingVariable.scopes = ["CORNER_RADIUS"];
       return existingVariable;
     }
   }
   // Create a new variable if no variables exist
   const variable = figma.variables.createVariable(name, collection, "FLOAT");
-  value && variable.setValueForMode(modeId, convertToPixels(value));
+  value && variable.setValueForMode(modeId, getPixelValue(value));
   variable.scopes = ["CORNER_RADIUS"];
   return variable;
 }
