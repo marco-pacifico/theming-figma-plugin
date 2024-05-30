@@ -1,9 +1,9 @@
-import { createColorSpecimens } from "./lib/color-specimens";
+import { arrangeNodesOnPage } from "./lib/arrange-nodes-on-page";
 import { createColorVars } from "./lib/create-color-vars";
 import { createRadiusVars } from "./lib/create-radius-vars";
+import createThemeSpecimen from "./lib/create-theme-specimen";
 import { getThemeByName, getThemesPromise } from "./lib/data";
 import { handleParametersInput } from "./lib/handleParametersInput";
-import { createRadiusSpecimens } from "./lib/radius-specimens";
 import swapVariables from "./lib/swap-variables";
 
 async function run() {
@@ -34,11 +34,12 @@ async function run() {
     await createRadiusVars(theme);
 
     // Create specimens
-    await createColorSpecimens();
-    await createRadiusSpecimens();
+    await createThemeSpecimen(themeName);
 
     // Swap bounded variables 
     await swapVariables();
+
+    // arrangeNodesOnPage();
     
     // Close the plugin after running
     figma.closePlugin(`Theme created for: ${themeName}`);
