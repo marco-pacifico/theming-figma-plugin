@@ -12,10 +12,10 @@ import {
 
 export default async function createRadiusSpecimens() {
   // Remove current radius specimens if they exist
-  removeExistingNode({
-    name: "Radius",
-    type: "FRAME",
-  });
+  // removeExistingNode({
+  //   name: "Radius",
+  //   type: "FRAME",
+  // });
 
   // Get component instances needed for documentation
   const radiusScale = await getInstanceOfComponent(componentKeys.radiusScale);

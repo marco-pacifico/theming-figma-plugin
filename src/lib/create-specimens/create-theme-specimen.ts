@@ -1,12 +1,13 @@
 import { componentKeys } from "../component-keys";
-import createColorSpecimens from "./create-color-specimens";
-import createRadiusSpecimens  from "./create-radius-specimens";
 import { loadFonts } from "../utils/fonts";
 import {
   getInstanceOfComponent,
   getNode,
   removeExistingNode,
 } from "../utils/nodes";
+import createColorSpecimens from "./create-color-specimens";
+import createRadiusSpecimens from "./create-radius-specimens";
+import createTypographySpecimens from "./create-typography-specimens";
 
 export default async function createThemeSpecimen(themeName: string) {
 
@@ -44,7 +45,9 @@ export default async function createThemeSpecimen(themeName: string) {
 
   const colorSpecimens = await createColorSpecimens();
   const radiusSpecimens = await createRadiusSpecimens();
+  const typographySpecimens = await createTypographySpecimens();
 
+  themeWrapper.appendChild(typographySpecimens);
   themeWrapper.appendChild(colorSpecimens);
   themeWrapper.appendChild(radiusSpecimens);
 }

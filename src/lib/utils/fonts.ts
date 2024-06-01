@@ -76,7 +76,13 @@ export async function getFigmaStyleName({
         fontWeightMap[400] = "Italic";
       }
     }
+  }
+
+  // Load all weights in the font family, both regular and italic
+  // Needed when updated existing font variables, prevents unloading font error
+  for (const styleName of styleNamesInFamily) {
     await figma.loadFontAsync({ family: fontFamily, style: styleName });
   }
+
   return fontWeightMap[fontWeight];
 }
