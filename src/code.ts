@@ -4,6 +4,7 @@ import createRadiusVars from "./lib/create-vars/create-radius-vars";
 import createTypographyVars from "./lib/create-vars/create-typography-vars";
 import { getThemeByName, getThemesPromise } from "./lib/data";
 import { handleParametersInput } from "./lib/handleParametersInput";
+import swapTextStyles from "./lib/swap-text-styles";
 import swapVariables from "./lib/swap-variables";
 
 async function run() {
@@ -40,7 +41,7 @@ async function run() {
     await swapVariables();
 
     // Swap text styles
-    // await swapTextStyles();
+    await swapTextStyles();
 
 
     // arrangeNodesOnPage();

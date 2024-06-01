@@ -15,8 +15,6 @@ export default async function createTypographySpecimens() {
   // Get all text nodes in the typography specimens with the name "Theme Heading"
   const headings = getHeadingTextNodes();
 
-  console.log("headings", headings);
-
   // Create text styles with typography variables, and apply the styles to the headings text nodes
   for (const heading of headings) {
     // Delete existing text style that will be replaced
