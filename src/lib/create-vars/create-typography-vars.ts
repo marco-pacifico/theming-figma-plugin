@@ -10,6 +10,7 @@ export default async function createTypographyVars(theme: Theme) {
   const figmaStyleName = await getFigmaStyleName({
     fontFamily: theme.heading.font,
     fontWeight: theme.heading.weight,
+    fontStyle: theme.heading.style,
   });
 
 
