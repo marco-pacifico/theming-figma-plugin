@@ -1,89 +1,128 @@
 import { Theme } from "../types";
+import { getFigmaStyleName } from "../utils/fonts";
 import { getCollectionAndModeId } from "../utils/variables";
 
 export default async function createTypographyVars(theme: Theme) {
   // Create a collection for the typography variables or use existing collection if it exists
   const { collection, modeId } = await getCollectionAndModeId("_Typography");
 
-  // Get the existing float and string variables in the file
-  // Need this to check if a variable already exists
-  const existingFloatVariables = await figma.variables.getLocalVariablesAsync(
-    "FLOAT"
-  );
-  const existingStringVariables = await figma.variables.getLocalVariablesAsync(
-    "STRING"
-  );
-
-  // Create heading font variable
-  createTypographyVariable({
-    name: "heading-font",
-    value: theme.heading.font,
-    type: "STRING",
-    collection,
-    modeId,
-    existingVariables: existingStringVariables,
+  // Get Figma font sytle name based on the theme's font family and weight number, and load the font
+  const figmaStyleName = await getFigmaStyleName({
+    fontFamily: theme.heading.font,
+    fontWeight: theme.heading.weight,
   });
 
-  // Create font weight variables
-  createTypographyVariable({
-    name: "heading-weight",
-    value: theme.heading.weight,
-    type: "FLOAT",
-    collection,
-    modeId,
-    existingVariables: existingFloatVariables,
-  });
 
-  // Create heading style variables
-  createTypographyVariable({
-    name: "heading-style",
-    value: theme.heading.style,
-    type: "STRING",
+  // If font variables already exist, update them
+  if ((await existingFontVaraibles()).exist) {
+    const { fontFamilyVariable, fontStyleVariable } = (
+      await existingFontVaraibles()
+    ).variables;
+    await updateExistingVariables({
+      fontFamilyVariable,
+      fontStyleVariable,
+      modeId,
+      fontFamily: theme.heading.font,
+      figmaStyleName,
+    });
+    return;
+  }
+
+  // Create new font variables if none exist already
+  createNewTypographyVariables({
     collection,
     modeId,
-    existingVariables: existingStringVariables,
+    fontFamilyName: theme.heading.font,
+    figmaStyleName,
   });
 }
 
+
 // **************************************************************
-// Create a new variable or update an existing variable with the same name
+// Create new font family and font style variables
 // **************************************************************
-async function createTypographyVariable({
-  name,
-  value,
-  type,
+function createNewTypographyVariables({
   collection,
   modeId,
-  existingVariables,
+  fontFamilyName,
+  figmaStyleName,
 }: {
-  name: string;
-  value: string | number;
-  type: VariableResolvedDataType;
   collection: VariableCollection;
   modeId: string;
-  existingVariables: Variable[];
+  fontFamilyName: string;
+  figmaStyleName: string;
 }) {
+  // Create a new font family variable
+  const fontFamilyVariable = figma.variables.createVariable(
+    "heading-font-family",
+    collection,
+    "STRING"
+  );
+  // Set its value
+  fontFamilyVariable &&
+    fontFamilyVariable.setValueForMode(modeId, fontFamilyName);
+  //   fontFamilyVariable.scopes = [""];
 
-  // If the variable type is a float, convert the value to a number
-  value = type === "FLOAT" ? Number(value) : value;
+  // Create a new font style variable
+  const fontStyleVariable = figma.variables.createVariable(
+    "heading-font-style",
+    collection,
+    "STRING"
+  );
 
-  // Get existing variable with the same name, if it exists
-  if (existingVariables.length > 0) {
-    // Check if a variable with the same name already exists
-    const existingVariable = existingVariables.find(
-      (variable) => variable.name === name
-    );
-    // If a variable with the same name exists, update the value
-    if (existingVariable) {
-      // Update the existing variable with the same name
-      value && existingVariable.setValueForMode(modeId, value);
-    //   existingVariable.scopes = ["TEXT_CONTENT"];
-      return existingVariable;
-    }
+  fontStyleVariable &&
+    fontStyleVariable.setValueForMode(modeId, figmaStyleName);
+  //   fontStyleVariable.scopes = [""];
+}
+
+// **************************************************************
+// Check if font variables already exist
+// If they do, return the variables
+// **************************************************************
+async function existingFontVaraibles() {
+  // Get all string variables in the file
+  const existingStringVariables = await figma.variables.getLocalVariablesAsync(
+    "STRING"
+  );
+  // If no string variables exist, return false
+  if (existingStringVariables.length === 0) {
+    return { exist: false, variables: {} };
   }
-  // Create a new variable if no variables exist
-  const variable = figma.variables.createVariable(name, collection, type);
-  value && variable.setValueForMode(modeId, value);
-//   variable.scopes = [""];
-  return variable;
+
+  const fontFamilyVariable = existingStringVariables.find(
+    (variable) => variable.name === "heading-font-family"
+  );
+  const fontStyleVariable = existingStringVariables.find(
+    (variable) => variable.name === "heading-font-style"
+  );
+
+  if (!fontFamilyVariable && !fontStyleVariable) {
+    return { exist: false, variables: {} };
+  }
+
+  return {
+    exist: true,
+    variables: { fontFamilyVariable, fontStyleVariable },
+  };
+}
+
+// **************************************************************
+// Update existing font variables
+// **************************************************************
+async function updateExistingVariables({
+  fontFamilyVariable,
+  fontStyleVariable,
+  modeId,
+  fontFamily,
+  figmaStyleName,
+}: {
+  fontFamilyVariable: Variable | undefined;
+  fontStyleVariable: Variable | undefined;
+  modeId: string;
+  fontFamily: string;
+  figmaStyleName: string;
+}) {
+  fontFamilyVariable && fontFamilyVariable?.setValueForMode(modeId, fontFamily);
+  fontStyleVariable &&
+    fontStyleVariable?.setValueForMode(modeId, figmaStyleName);
 }

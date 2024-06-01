@@ -9,11 +9,14 @@ import {
 } from "../utils/nodes";
 
 export default async function createThemeSpecimen(themeName: string) {
+
+  const page = figma.currentPage;
+  await page.loadAsync();
   // Remove current theme specimens if they exist
   removeExistingNode({
     name: "Theme",
     type: "FRAME",
-    parent: figma.currentPage,
+    parent: page,
   });
 
   // Get component instances needed for documentation

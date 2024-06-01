@@ -3,6 +3,7 @@ import createColorVars from "./lib/create-vars/create-color-vars";
 import createRadiusVars from "./lib/create-vars/create-radius-vars";
 import createTypographyVars from "./lib/create-vars/create-typography-vars";
 import { getThemeByName, getThemesPromise } from "./lib/data";
+import swapTextStyles from "./lib/swap-text-styles";
 import { handleParametersInput } from "./lib/handleParametersInput";
 import swapVariables from "./lib/swap-variables";
 
@@ -28,6 +29,9 @@ async function run() {
     // Fetch the theme data
     const theme = await getThemeByName(themeName);
 
+    // Load all fonts
+    // await loadAllFonts(theme);
+
     // Create variables
     await createColorVars(theme);
     await createRadiusVars(theme);
@@ -38,6 +42,10 @@ async function run() {
 
     // Swap bounded variables
     await swapVariables();
+
+    // Swap text styles
+    await swapTextStyles();
+
 
     // arrangeNodesOnPage();
 
