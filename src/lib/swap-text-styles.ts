@@ -6,11 +6,14 @@ export default async function swapTextStyles() {
   // Create style
   const textStyle = figma.createTextStyle();
   const textStyleId = textStyle.id;
+  textStyle.name = "Test Text Style";
+  console.log("Created test text style");
 
   // Create text node
   const text = figma.createText();
-  text.characters = "Hello world!";
+  text.characters = "Test Text Node";
   text.setTextStyleIdAsync(textStyle.id);
+  console.log("Created test text node and set its style");
 
   const typographyVariables = await getVariablesInCollection("_Typography");
   const headingFontFamily = typographyVariables.find(
@@ -21,12 +24,15 @@ export default async function swapTextStyles() {
   );
 
   // Apply variables
-  if (headingFontStyle && typeof headingFontStyle !== "undefined") {
-    textStyle.setBoundVariable("fontStyle", headingFontStyle);
-  }
   if (headingFontFamily && typeof headingFontFamily !== "undefined") {
     textStyle.setBoundVariable("fontFamily", headingFontFamily);
+    console.log("Set bound variable on test text style for font family");
   }
+  if (headingFontStyle && typeof headingFontStyle !== "undefined") {
+    textStyle.setBoundVariable("fontStyle", headingFontStyle);
+    console.log("Set bound variable on test text style for font style");
+  }
+  
 
   // Getting a text node on the page that's using a library text style
   // Text node is in a frame called Heading
@@ -50,8 +56,7 @@ export default async function swapTextStyles() {
     if (typeof textStyleId === "string") {
       await libraryTextNode.setTextStyleIdAsync(textStyleId);
       console.log(
-        "libraryTextNode's style id is",
-        libraryTextNode?.textStyleId || "Not working"
+        "Set text style on library text node to the local text style"
       );
     }
 

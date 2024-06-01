@@ -65,6 +65,7 @@ export async function getFigmaStyleName({
         fontWeightMap[weight] = styleName;
       }
     }
+    await figma.loadFontAsync({ family: fontFamily, style: styleName });
   }
   return fontWeightMap[fontWeight];
 }

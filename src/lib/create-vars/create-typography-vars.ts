@@ -7,16 +7,24 @@ export default async function createTypographyVars(theme: Theme) {
   const { collection, modeId } = await getCollectionAndModeId("_Typography");
 
   // Get Figma font sytle name based on the theme's font family and weight number, and load the font
-  const figmaStyleName = await getFigmaStyleNameAndLoadFont({
+  const figmaStyleName = await getFigmaStyleName({
     fontFamily: theme.heading.font,
     fontWeight: theme.heading.weight,
   });
 
+  console.log("THEME:", theme.name.toUpperCase());
+  console.log("theme font family", theme.heading.font);
+  console.log("theme font weight", theme.heading.weight);
+  console.log("theme font style", theme.heading.style);
+  console.log("figma style name", figmaStyleName);
+
   // If font variables already exist, update them
   if ((await existingFontVaraibles()).exist) {
+    console.log("Font variables exist");
     const { fontFamilyVariable, fontStyleVariable } = (
       await existingFontVaraibles()
     ).variables;
+    console.log("updating existing font variables");
     await updateExistingVariables({
       fontFamilyVariable,
       fontStyleVariable,
@@ -24,42 +32,21 @@ export default async function createTypographyVars(theme: Theme) {
       fontFamily: theme.heading.font,
       figmaStyleName,
     });
+    console.log("Font variables updated");
     return;
   }
 
   // Create new font variables if none exist already
+  console.log("creating new font variables");
   createNewTypographyVariables({
     collection,
     modeId,
     fontFamilyName: theme.heading.font,
     figmaStyleName,
   });
+  console.log("New font variables created");
 }
 
-// **************************************************************
-// Get the font style name used by Figma e.g. Regular, Semi Bold Italic, etc
-// Load the font
-// **************************************************************
-async function getFigmaStyleNameAndLoadFont({
-  fontFamily,
-  fontWeight,
-}: {
-  fontFamily: string;
-  fontWeight: string;
-}) {
-  // Get the font style name used by Figma e.g. Regular, Semi Bold Italic, etc
-  const figmaStyleName = await getFigmaStyleName({
-    fontFamily: fontFamily,
-    fontWeight: fontWeight,
-  });
-  // Load the font
-  await figma.loadFontAsync({
-    family: fontFamily,
-    style: figmaStyleName,
-  });
-
-  return figmaStyleName;
-}
 
 // **************************************************************
 // Create new font family and font style variables
@@ -145,8 +132,6 @@ async function updateExistingVariables({
   fontFamily: string;
   figmaStyleName: string;
 }) {
-  fontFamilyVariable && fontFamilyVariable.setValueForMode(modeId, "");
-  fontStyleVariable && fontStyleVariable.setValueForMode(modeId, "");
   fontFamilyVariable && fontFamilyVariable?.setValueForMode(modeId, fontFamily);
   fontStyleVariable &&
     fontStyleVariable?.setValueForMode(modeId, figmaStyleName);
