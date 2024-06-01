@@ -12,19 +12,12 @@ export default async function createTypographyVars(theme: Theme) {
     fontWeight: theme.heading.weight,
   });
 
-  console.log("THEME:", theme.name.toUpperCase());
-  console.log("theme font family", theme.heading.font);
-  console.log("theme font weight", theme.heading.weight);
-  console.log("theme font style", theme.heading.style);
-  console.log("figma style name", figmaStyleName);
 
   // If font variables already exist, update them
   if ((await existingFontVaraibles()).exist) {
-    console.log("Font variables exist");
     const { fontFamilyVariable, fontStyleVariable } = (
       await existingFontVaraibles()
     ).variables;
-    console.log("updating existing font variables");
     await updateExistingVariables({
       fontFamilyVariable,
       fontStyleVariable,
@@ -32,19 +25,16 @@ export default async function createTypographyVars(theme: Theme) {
       fontFamily: theme.heading.font,
       figmaStyleName,
     });
-    console.log("Font variables updated");
     return;
   }
 
   // Create new font variables if none exist already
-  console.log("creating new font variables");
   createNewTypographyVariables({
     collection,
     modeId,
     fontFamilyName: theme.heading.font,
     figmaStyleName,
   });
-  console.log("New font variables created");
 }
 
 
