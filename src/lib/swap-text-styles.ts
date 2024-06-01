@@ -1,13 +1,32 @@
 import { getNode } from "./utils/nodes";
+import { getVariablesInCollection } from "./utils/variables";
 
-export default async function getTextStyles() {
-  // Get local text styles, don't need to do this, just wanted to see what the text sytle objects look like
-  const localTextStyles = await figma.getLocalTextStylesAsync();
-  const localTextStylesNames = localTextStyles.map((textStyle) => textStyle.name);
-  console.log("localTextStyles are", localTextStylesNames);
+export default async function swapTextStyles() {
 
-    // Get the first local text style id
-  const localTextStyleId = localTextStyles[2].id;
+  // Create style
+  const textStyle = figma.createTextStyle();
+  const textStyleId = textStyle.id;
+
+  // Create text node
+  const text = figma.createText();
+  text.characters = "Hello world!";
+  text.setTextStyleIdAsync(textStyle.id);
+
+  const typographyVariables = await getVariablesInCollection("_Typography");
+  const headingFontFamily = typographyVariables.find(
+    (variable) => variable?.name === "heading-font-family"
+  );
+  const headingFontStyle = typographyVariables.find(
+    (variable) => variable?.name === "heading-font-style"
+  );
+
+  // Apply variables
+  if (headingFontStyle && typeof headingFontStyle !== "undefined") {
+    textStyle.setBoundVariable("fontStyle", headingFontStyle);
+  }
+  if (headingFontFamily && typeof headingFontFamily !== "undefined") {
+    textStyle.setBoundVariable("fontFamily", headingFontFamily);
+  }
 
   // Getting a text node on the page that's using a library text style
   // Text node is in a frame called Heading
@@ -22,12 +41,19 @@ export default async function getTextStyles() {
       type: "TEXT",
       parent: TestingInstance as InstanceNode,
     }) as TextNode;
-    console.log("libraryTextNode's name is", libraryTextNode?.name || "Not working");
+    console.log(
+      "libraryTextNode's name is",
+      libraryTextNode?.name || "Not working"
+    );
 
     // Set style on library text node to the first local text style
-    await libraryTextNode.setTextStyleIdAsync(localTextStyleId)
-    console.log("libraryTextNode's style id is", libraryTextNode?.textStyleId || "Not working");
-
+    if (typeof textStyleId === "string") {
+      await libraryTextNode.setTextStyleIdAsync(textStyleId);
+      console.log(
+        "libraryTextNode's style id is",
+        libraryTextNode?.textStyleId || "Not working"
+      );
+    }
 
     // // Get Text Style Id from the text node
     // const libaryTextNodeStyleId = libraryTextNode?.textStyleId || "";

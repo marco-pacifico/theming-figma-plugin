@@ -38,6 +38,7 @@ export type ColorScale = {
   "950": string;
 };
 
+
 export type NeutralScale = Omit<ColorScale, "BASE">;
 
 export type RadiusScale = {
@@ -55,6 +56,12 @@ export type Heading = {
   weight: string;
   style: string;
 };
+
+
+export type FontWeightsMap = {
+  [weight: string]: string;
+};
+
 
 export type Theme = {
   [key: string]: ColorScale | NeutralScale | RadiusScale | Heading | string;

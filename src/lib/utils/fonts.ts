@@ -1,4 +1,4 @@
-import { NodeWithChildren } from "../types";
+import { FontWeightsMap, NodeWithChildren } from "../types";
 // **************************************************************
 // Load fonts in a page
 // **************************************************************
@@ -20,4 +20,51 @@ export async function loadFonts(node: NodeWithChildren = figma.currentPage) {
     await figma.loadFontAsync(font);
   }
   await figma.loadFontAsync({ family: "Inter", style: "Bold" });
+}
+
+export async function getFigmaStyleName({
+  fontFamily,
+  fontWeight,
+}: {
+  fontFamily: string;
+  fontWeight: string;
+}) {
+  // MAP FONT WEIGHT NUMBER AND STYLE TO FIGMA FONT STYLE NAMES
+  // e.g. Weight: 500, Style: italic => "Medium Italic"
+  // Get all available fonts in the file: all fonts available in Figma font picker
+  const availableFonts = await figma.listAvailableFontsAsync();
+  // Find all fonts in the font family
+  const fonts = availableFonts.filter(
+    (font) => font.fontName.family === fontFamily
+  );
+  if (fonts.length === 0) {
+    throw new Error(`${fontFamily} is not available in file`);
+  }
+  // Get all styles in for the font family
+  const styleNamesInFamily = fonts.map((font) => font.fontName.style);
+  // Create a map of font weights to style names
+  const fontWeightMap: FontWeightsMap = {};
+  const weightKeywords = [
+    { weight: 100, keyword: "Thin" },
+    { weight: 200, keyword: "ExtraLight" },
+    { weight: 300, keyword: "Light" },
+    { weight: 400, keyword: "Regular" },
+    { weight: 500, keyword: "Medium" },
+    { weight: 600, keyword: "SemiBold" },
+    { weight: 700, keyword: "Bold" },
+    { weight: 800, keyword: "ExtraBold" },
+    { weight: 900, keyword: "Black" },
+  ];
+  // For each style name, go through list of keywords and find the keyword that matches the style name in lower case
+  // Then push the original style name with its corresponding weight to the font weight map
+  // Need to do this beacuse some fonts have different naming conventions for font weights e.g. Semi Bold vs SemiBold
+  for (const styleName of styleNamesInFamily) {
+    const styleNameWithOutSpaces = styleName.replace(/\s/g, ""); // Remove any spaces for matching
+    for (const { weight, keyword } of weightKeywords) {
+      if (styleNameWithOutSpaces.includes(keyword)) {
+        fontWeightMap[weight] = styleName;
+      }
+    }
+  }
+  return fontWeightMap[fontWeight];
 }
