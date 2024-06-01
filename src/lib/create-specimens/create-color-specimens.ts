@@ -5,7 +5,6 @@ import { capitalizeFirstLetter, groupVariablesByPrefix } from "../utils/formatti
 import {
   getInstanceOfComponent,
   getNode,
-  removeExistingNode,
 } from "../utils/nodes";
 import {
   bindFillsVariableToNode,
@@ -14,10 +13,10 @@ import {
 
 export default async function createColorSpecimens() {
   // Remove current color specimens if they exist
-  removeExistingNode({
-    name: "Colors",
-    type: "FRAME",
-  });
+  // removeExistingNode({
+  //   name: "Colors",
+  //   type: "FRAME",
+  // });
 
   // Get color variables in the file
   const colorVariables = await figma.variables.getLocalVariablesAsync("COLOR");

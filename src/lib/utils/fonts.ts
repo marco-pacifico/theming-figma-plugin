@@ -25,9 +25,11 @@ export async function loadFonts(node: NodeWithChildren = figma.currentPage) {
 export async function getFigmaStyleName({
   fontFamily,
   fontWeight,
+  fontStyle,
 }: {
   fontFamily: string;
   fontWeight: string;
+  fontStyle: string;
 }) {
   // MAP FONT WEIGHT NUMBER AND STYLE TO FIGMA FONT STYLE NAMES
   // e.g. Weight: 500, Style: italic => "Medium Italic"
@@ -42,6 +44,11 @@ export async function getFigmaStyleName({
   }
   // Get all styles in for the font family
   const styleNamesInFamily = fonts.map((font) => font.fontName.style);
+  // Filter style names based on the font style
+  const filteredStyleNamesInFamily =
+    fontStyle === "italic"
+      ? styleNamesInFamily.filter((style) => style.includes("Italic"))
+      : styleNamesInFamily.filter((style) => !style.includes("Italic"));
   // Create a map of font weights to style names
   const fontWeightMap: FontWeightsMap = {};
   const weightKeywords = [
@@ -58,14 +65,24 @@ export async function getFigmaStyleName({
   // For each style name, go through list of keywords and find the keyword that matches the style name in lower case
   // Then push the original style name with its corresponding weight to the font weight map
   // Need to do this beacuse some fonts have different naming conventions for font weights e.g. Semi Bold vs SemiBold
-  for (const styleName of styleNamesInFamily) {
+  for (const styleName of filteredStyleNamesInFamily) {
     const styleNameWithOutSpaces = styleName.replace(/\s/g, ""); // Remove any spaces for matching
     for (const { weight, keyword } of weightKeywords) {
       if (styleNameWithOutSpaces.includes(keyword)) {
         fontWeightMap[weight] = styleName;
       }
+      // Special case for fonts that have weight 400 and style italic
+      if (weight === 400 && fontStyle === "italic") {
+        fontWeightMap[400] = "Italic";
+      }
     }
+  }
+
+  // Load all weights in the font family, both regular and italic
+  // Needed when updated existing font variables, prevents unloading font error
+  for (const styleName of styleNamesInFamily) {
     await figma.loadFontAsync({ family: fontFamily, style: styleName });
   }
+
   return fontWeightMap[fontWeight];
 }
