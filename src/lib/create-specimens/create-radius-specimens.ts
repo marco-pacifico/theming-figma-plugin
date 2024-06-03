@@ -1,6 +1,7 @@
 import { componentKeys } from "../component-keys";
 import { loadFonts } from "../utils/fonts";
 import {
+  createFrame,
   getInstanceOfComponent,
   getNode,
   removeExistingNode,
@@ -13,6 +14,7 @@ import {
 export default async function createRadiusSpecimens() {
   // Get component instances needed for documentation
   const radiusScale = await getInstanceOfComponent(componentKeys.radiusScale);
+  // Get radius wrapper and detach it from the instance
   const radiusWrapper = (
     await getInstanceOfComponent(componentKeys.sectionWrapper)
   ).detachInstance();
@@ -39,6 +41,13 @@ export default async function createRadiusSpecimens() {
   const radiusVariables = await getVariablesInCollection("_Radius");
   const { modeId } = await getCollectionAndModeId("_Radius");
 
+  // Create empty frame to hold radius specimens
+  const radiusScaleRow = createFrame({
+    layoutMode: "HORIZONTAL",
+    counterAxisSizingMode: "AUTO",
+    itemSpacing: 24,
+  });
+
   // Create a radius scale for each variable
   for (const variable of radiusVariables) {
     const radiusScaleInstance = radiusScale.clone();
@@ -52,33 +61,21 @@ export default async function createRadiusSpecimens() {
 
     // Update Variable Name
     await loadFonts(NameAndSize);
-    const name = getNode({
+    const Name = getNode({
       name: "Name",
       type: "TEXT",
       parent: NameAndSize,
     }) as TextNode;
-    name.characters = variable?.name || "radius";
+    Name && (Name.characters = variable?.name || "radius");
 
     // Update Variable Size in Pixels
     const Size = getNode({
       name: "Size",
-      type: "FRAME",
+      type: "TEXT",
       parent: NameAndSize,
-    }) as FrameNode;
-    await loadFonts(Size);
-    const sizePx = getNode({
-      name: "size-px",
-      type: "TEXT",
-      parent: Size,
     }) as TextNode;
-    sizePx.characters = `${variable?.valuesByMode[modeId]}px` || "0";
-    // Hide Text Node for Size in Rem
-    const sizeRem = getNode({
-      name: "size-rem",
-      type: "TEXT",
-      parent: Size,
-    }) as TextNode;
-    sizeRem.opacity = 0;
+
+    Size && (Size.characters = `${variable?.valuesByMode[modeId]}px` || "0");
 
     // Bound radius varaible Example frame
     const Example = getNode({
@@ -91,10 +88,13 @@ export default async function createRadiusSpecimens() {
     Example.setBoundVariable("bottomLeftRadius", variable);
     Example.setBoundVariable("bottomRightRadius", variable);
 
-    // Append radius scale instance to radius wrapper
-    radiusWrapper.appendChild(radiusScaleInstance);
+    // Append radius scale instance to radius scale row
+    radiusScaleRow.appendChild(radiusScaleInstance);
   }
-  // Remove imported Radius Scale component
+  // Append radius scale row to radius wrapper
+  radiusWrapper.appendChild(radiusScaleRow);
+
+  // Remove unused imported Radius Scale component
   radiusScale.remove();
 
   return radiusWrapper;
