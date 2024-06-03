@@ -1,18 +1,17 @@
 import { componentKeys } from "../component-keys";
-import { cloneObject, rgbaToHex } from "../utils/formatting";
+import { rgbaToHex } from "../utils/formatting";
 import { loadFonts } from "../utils/fonts";
-import { capitalizeFirstLetter, groupVariablesByPrefix } from "../utils/formatting";
 import {
-  getInstanceOfComponent,
-  getNode,
-} from "../utils/nodes";
+  capitalizeFirstLetter,
+  groupVariablesByPrefix,
+} from "../utils/formatting";
+import { getInstanceOfComponent, getNode, createFrame } from "../utils/nodes";
 import {
   bindFillsVariableToNode,
   getCollectionAndModeId,
 } from "../utils/variables";
 
 export default async function createColorSpecimens() {
-
   // Get color variables in the file
   const colorVariables = await figma.variables.getLocalVariablesAsync("COLOR");
 
@@ -54,7 +53,11 @@ export default async function createColorSpecimens() {
     colorHeading.name = capitalizeFirstLetter(scale);
     colorHeading.characters = capitalizeFirstLetter(scale);
     const variables = groupedVariables[scale];
-    const colorChipRow = createColorChipRow();
+    const colorChipRow = createFrame({
+      layoutMode: "HORIZONTAL",
+      counterAxisSizingMode: "AUTO",
+      itemSpacing: 24,
+    });
     for (const colorVariable of variables) {
       const colorChipInstance = await createColorChip(
         colorVariable,
@@ -68,6 +71,7 @@ export default async function createColorSpecimens() {
     colorWrapper.appendChild(colorChipRow);
   }
 
+  // Remove unused nodes, imported colorChip and original section heading
   colorChip.remove();
   if (sectionHeading) {
     sectionHeading.remove();
@@ -133,20 +137,4 @@ async function createColorChip(
   bindFillsVariableToNode(colorVariable, colorSpecimenFrame);
 
   return colorChipInstance;
-}
-
-function createColorChipRow() {
-  const columnGap = 24;
-  // Create a frame to hold the color chip
-  const frame = figma.createFrame();
-  // Make the fill transparent
-  const fills = cloneObject(frame.fills);
-  fills[0].opacity = 0;
-  fills[0].type = "SOLID";
-  frame.fills = fills;
-  // Set the layout mode and spacing of the frame
-  frame.layoutMode = "HORIZONTAL";
-  frame.counterAxisSizingMode = "AUTO";
-  frame.itemSpacing = columnGap;
-  return frame;
 }
