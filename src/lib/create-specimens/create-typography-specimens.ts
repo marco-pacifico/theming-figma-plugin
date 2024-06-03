@@ -3,7 +3,13 @@ import { loadFonts } from "../utils/fonts";
 import { getInstanceOfComponent, getNode } from "../utils/nodes";
 import { getVariablesInCollection } from "../utils/variables";
 
-export default async function createTypographySpecimens() {
+export default async function createTypographySpecimens({
+  themeFont,
+  figmaStyleName,
+} : {
+  themeFont: string;
+  figmaStyleName: string;
+}) {
   // Get component instances needed for documentation
   const typographySpecimens = (
     await getInstanceOfComponent(componentKeys.typography)
@@ -12,8 +18,27 @@ export default async function createTypographySpecimens() {
   // Load fonts in Color Chip and Color Wrapper
   await loadFonts(typographySpecimens);
 
+  // Get typography specimens frame
+  const TypographyFrame = getNode({
+    name: "Typography",
+    type: "FRAME",
+    parent: figma.currentPage,
+  }) as FrameNode;
+
+  // Print heading font family and font style in the typography specimen 
+  const headingFontTextNode = TypographyFrame.findOne(
+    (node) => node.type === "TEXT" && node.name === "Heading Font"
+  ) as TextNode;
+  // Update the font family and font style text node
+  headingFontTextNode.characters = `${themeFont} ${figmaStyleName}`
+
+  
   // Get all text nodes in the typography specimens with the name "Theme Heading"
-  const headings = getHeadingTextNodes();
+  const headings =
+    TypographyFrame &&
+    (TypographyFrame.findAll(
+      (node) => node.type === "TEXT" && node.name === "Theme Heading"
+    ) as TextNode[]);
 
   // Create text styles with typography variables, and apply the styles to the headings text nodes
   for (const heading of headings) {
@@ -66,16 +91,17 @@ export default async function createTypographySpecimens() {
   return typographySpecimens;
 }
 
-function getHeadingTextNodes() {
-  const TypographyFrame = getNode({
-    name: "Typography",
-    type: "FRAME",
-    parent: figma.currentPage,
-  }) as FrameNode;
-  const HeadingTextNodes =
-    TypographyFrame &&
-    (TypographyFrame.findAll(
-      (node) => node.type === "TEXT" && node.name === "Theme Heading"
-    ) as TextNode[]);
-  return HeadingTextNodes;
-}
+// function getHeadingTextNodes() {
+//   const TypographyFrame = getNode({
+//     name: "Typography",
+//     type: "FRAME",
+//     parent: figma.currentPage,
+//   }) as FrameNode;
+//   const HeadingTextNodes =
+//     TypographyFrame &&
+//     (TypographyFrame.findAll(
+//       (node) => node.type === "TEXT" && node.name === "Theme Heading"
+//     ) as TextNode[]);
+//   return HeadingTextNodes;
+// }
+

@@ -9,8 +9,15 @@ import createColorSpecimens from "./create-color-specimens";
 import createRadiusSpecimens from "./create-radius-specimens";
 import createTypographySpecimens from "./create-typography-specimens";
 
-export default async function createThemeSpecimen(themeName: string) {
-
+export default async function createThemeSpecimen({
+  themeName,
+  themeFont,
+  figmaStyleName,
+}: {
+  themeName: string;
+  themeFont: string;
+  figmaStyleName: string;
+}) {
   const page = figma.currentPage;
   await page.loadAsync();
   // Remove current theme specimens if they exist
@@ -22,7 +29,7 @@ export default async function createThemeSpecimen(themeName: string) {
 
   // Get component instances needed for documentation
   const themeWrapper = (
-    await getInstanceOfComponent(componentKeys.wrapper)
+    await getInstanceOfComponent(componentKeys.themeWrapper)
   ).detachInstance();
   themeWrapper.name = "Theme";
 
@@ -31,11 +38,11 @@ export default async function createThemeSpecimen(themeName: string) {
 
   // Update Section Title of Radius Wrapper
   const sectionTitle = getNode({
-    name: "Section Title",
+    name: "Theme",
     type: "TEXT",
     parent: themeWrapper,
   }) as TextNode;
-  sectionTitle.characters = `${themeName} Theme`;
+  sectionTitle.characters = themeName;
   // Remove Section Heading from Radius Wrapper
   removeExistingNode({
     name: "Section Heading",
@@ -45,7 +52,10 @@ export default async function createThemeSpecimen(themeName: string) {
 
   const colorSpecimens = await createColorSpecimens();
   const radiusSpecimens = await createRadiusSpecimens();
-  const typographySpecimens = await createTypographySpecimens();
+  const typographySpecimens = await createTypographySpecimens({
+    themeFont,
+    figmaStyleName,
+  });
 
   themeWrapper.appendChild(typographySpecimens);
   themeWrapper.appendChild(colorSpecimens);

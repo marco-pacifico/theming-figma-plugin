@@ -1,17 +1,9 @@
 import { Theme } from "../types";
-import { getFigmaStyleName } from "../utils/fonts";
 import { getCollectionAndModeId } from "../utils/variables";
 
-export default async function createTypographyVars(theme: Theme) {
+export default async function createTypographyVars(theme: Theme, figmaStyleName: string) {
   // Create a collection for the typography variables or use existing collection if it exists
   const { collection, modeId } = await getCollectionAndModeId("_Typography");
-
-  // Get Figma font sytle name based on the theme's font family and weight number, and load the font
-  const figmaStyleName = await getFigmaStyleName({
-    fontFamily: theme.heading.font,
-    fontWeight: theme.heading.weight,
-    fontStyle: theme.heading.style,
-  });
 
 
   // If font variables already exist, update them

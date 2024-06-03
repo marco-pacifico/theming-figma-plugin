@@ -1,5 +1,6 @@
 export const componentKeys = {
-    wrapper: "4d52093950ca7e48b6ff818e80ac61cb87318ec2", 
+    themeWrapper: "245b49b8ad411fc664637151f8383e4a6e54fb44",
+    sectionWrapper: "4d52093950ca7e48b6ff818e80ac61cb87318ec2", 
     colorChip: "2624b34b99f11b8cfa4535eb310df290b00d5fc8",
     radiusScale: "1b1f8135c41eac36d74275283649c2f4ff74b8d5",
     typography: "f7909be2766355464c7014842004aea8e6b3f9ed",
