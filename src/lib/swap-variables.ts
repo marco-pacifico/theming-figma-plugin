@@ -1,4 +1,3 @@
-import { componentKeys } from "./component-keys";
 import { NodeWithFills } from "./types";
 import { removeExistingNode } from "./utils/nodes";
 import {
@@ -12,20 +11,12 @@ export default async function swapVariables() {
     name: "Testing",
     type: "INSTANCE",
   });
-  
-  // Import a component by key
-  // const component = await figma.importComponentByKeyAsync(
-  //   componentKeys.testing
-  // );
-  // Create an instance of the component
-  // component.createInstance();
 
   // Get the existing color variables in the file
   const existingColorVariables = await existingVariables("COLOR");
 
   const nodes = figma.currentPage.findAll();
   const filteredNodes = nodes.filter((node) => node.name !== "Rows/ColorChip");
-
 
   // SWAP FILLS
   // For each node find any bounded fills variables and swap them out with existing color variable of the same name
