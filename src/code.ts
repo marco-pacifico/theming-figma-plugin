@@ -6,6 +6,7 @@ import { getThemeByName, getThemesPromise } from "./lib/data";
 import { handleParametersInput } from "./lib/handleParametersInput";
 import swapTextStyles from "./lib/swap-text-styles";
 import swapVariables from "./lib/swap-variables";
+import { getFigmaStyleName } from "./lib/utils/fonts";
 
 async function run() {
   // Fetch list of themes
@@ -29,20 +30,30 @@ async function run() {
     // Fetch the theme data
     const theme = await getThemeByName(themeName);
 
+    // Get Figma font sytle name based on the theme's font family and weight number, and load the font
+    const figmaStyleName = await getFigmaStyleName({
+      fontFamily: theme.heading.font,
+      fontWeight: theme.heading.weight,
+      fontStyle: theme.heading.style,
+    });
+
     // Create variables
     await createColorVars(theme);
     await createRadiusVars(theme);
-    await createTypographyVars(theme);
+    await createTypographyVars(theme, figmaStyleName);
 
     // Create specimens
-    await createThemeSpecimen(themeName);
+    await createThemeSpecimen({
+      themeName: theme.name,
+      themeFont: theme.heading.font,
+      figmaStyleName,
+    });
 
     // Swap bounded variables
     await swapVariables();
 
     // Swap text styles
     await swapTextStyles();
-
 
     // arrangeNodesOnPage();
 

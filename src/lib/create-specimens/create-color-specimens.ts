@@ -12,11 +12,6 @@ import {
 } from "../utils/variables";
 
 export default async function createColorSpecimens() {
-  // Remove current color specimens if they exist
-  // removeExistingNode({
-  //   name: "Colors",
-  //   type: "FRAME",
-  // });
 
   // Get color variables in the file
   const colorVariables = await figma.variables.getLocalVariablesAsync("COLOR");
@@ -30,7 +25,7 @@ export default async function createColorSpecimens() {
   // Get component instances needed for documentation
   const colorChip = await getInstanceOfComponent(componentKeys.colorChip);
   const colorWrapper = (
-    await getInstanceOfComponent(componentKeys.wrapper)
+    await getInstanceOfComponent(componentKeys.sectionWrapper)
   ).detachInstance();
   colorWrapper.name = "Colors";
 
@@ -40,7 +35,7 @@ export default async function createColorSpecimens() {
 
   // Update title of Color Wrapper
   const sectionTitle = getNode({
-    name: "Section Title",
+    name: "Title",
     type: "TEXT",
     parent: colorWrapper,
   }) as TextNode;

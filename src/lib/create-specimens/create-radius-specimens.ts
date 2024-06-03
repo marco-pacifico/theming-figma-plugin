@@ -11,16 +11,10 @@ import {
 } from "../utils/variables";
 
 export default async function createRadiusSpecimens() {
-  // Remove current radius specimens if they exist
-  // removeExistingNode({
-  //   name: "Radius",
-  //   type: "FRAME",
-  // });
-
   // Get component instances needed for documentation
   const radiusScale = await getInstanceOfComponent(componentKeys.radiusScale);
   const radiusWrapper = (
-    await getInstanceOfComponent(componentKeys.wrapper)
+    await getInstanceOfComponent(componentKeys.sectionWrapper)
   ).detachInstance();
   radiusWrapper.name = "Radius";
 
@@ -29,7 +23,7 @@ export default async function createRadiusSpecimens() {
 
   // Update Section Title of Radius Wrapper
   const sectionTitle = getNode({
-    name: "Section Title",
+    name: "Title",
     type: "TEXT",
     parent: radiusWrapper,
   }) as TextNode;
