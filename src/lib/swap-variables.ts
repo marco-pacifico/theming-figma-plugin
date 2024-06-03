@@ -14,11 +14,11 @@ export default async function swapVariables() {
   });
   
   // Import a component by key
-  const component = await figma.importComponentByKeyAsync(
-    componentKeys.testing
-  );
+  // const component = await figma.importComponentByKeyAsync(
+  //   componentKeys.testing
+  // );
   // Create an instance of the component
-  component.createInstance();
+  // component.createInstance();
 
   // Get the existing color variables in the file
   const existingColorVariables = await existingVariables("COLOR");
