@@ -2,18 +2,18 @@
 // Capitalize the first letter of a string
 // **************************************************************
 export function capitalizeFirstLetter(string: string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+export function getPixelValue(value: string): number {
+  if (value.endsWith("px")) {
+    return parseFloat(value.replace("px", ""));
+  } else if (value.endsWith("rem")) {
+    return parseFloat(value.replace("rem", "")) * 16;
+  } else {
+    return parseFloat(value);
   }
-  
-  export function getPixelValue(value: string): number {
-    if (value.endsWith("px")) {
-      return parseFloat(value.replace("px", ""));
-    } else if (value.endsWith("rem")) {
-      return parseFloat(value.replace("rem", "")) * 16;
-    } else {
-      return parseFloat(value);
-    }
-  }
+}
 
 // **************************************************************
 // Clone an object, used for clones fills and strokes
@@ -71,15 +71,15 @@ export function componentToHex(c: number): string {
 // **************************************************************
 // Group by prefix
 // **************************************************************
-export function groupVariablesByPrefix(
-  colorVariables: Variable[]
-) {
+export function groupVariablesByPrefix(colorVariables: (Variable | null)[]) {
   return colorVariables.reduce((groups, variable) => {
-    const prefix = getPrefix(variable.name);
+    const prefix = getPrefix(variable?.name || "");
     if (!groups[prefix]) {
       groups[prefix] = [];
     }
-    groups[prefix].push(variable);
+    if (variable) {
+      groups[prefix].push(variable);
+    }
     return groups;
   }, {} as Record<string, Variable[]>);
 }

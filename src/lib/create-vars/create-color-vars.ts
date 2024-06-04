@@ -1,6 +1,5 @@
 import { ColorScale, Theme } from "../types";
-import { hexToRgbFloat } from "../utils/formatting";
-import { getCollectionAndModeId, getVariablesInCollection } from "../utils/variables";
+import { createColorOrUpdateVariable, getCollectionAndModeId, getVariablesInCollection } from "../utils/variables";
 
 export default async function createColorVars(theme: Theme) {
   // Create a collection for the colors or use existing collection if it exists
@@ -11,7 +10,7 @@ export default async function createColorVars(theme: Theme) {
   // const existingColorVariables = await figma.variables.getLocalVariablesAsync(
   //   "COLOR"
   // );
-  const existingColorVariables = await getVariablesInCollection("_Colors");
+  const variablesInCollection = await getVariablesInCollection("_Colors");
 
   // Define the color roles
   const COLOR_ROLES = ["brand", "accent", "supplemental", "neutral"];
@@ -27,12 +26,12 @@ export default async function createColorVars(theme: Theme) {
     for (const shade in scale) {
       if (shade !== "BASE" && shade !== "FOREGROUND") {
         // Create new variable or update existing variable with the same name
-        const variable = await createColorVariable({
+        const variable = await createColorOrUpdateVariable({
           name: `${role}-${shade}`,
           hex: scale[shade].toString(),
           collection,
           modeId,
-          existingColorVariables,
+          variablesInCollection,
         });
         // If a base shade exisits in the scale and the current shade = base shade, capture the variable to alias to later
         if (scale["BASE"] && shade === scale["BASE"].toString()) {
@@ -43,11 +42,11 @@ export default async function createColorVars(theme: Theme) {
           foregroundAliasedTo = variable;
         }
       } else if (shade === "BASE") {
-        const baseVariable = await createColorVariable({
+        const baseVariable = await createColorOrUpdateVariable({
           name: `${role}-base`,
           collection,
           modeId,
-          existingColorVariables,
+          variablesInCollection,
         });
         // If there's a base shade, set role-base = role-base_shade (e.g. brand-base = brand-500)
         if (baseAliasedTo !== undefined) {
@@ -55,11 +54,11 @@ export default async function createColorVars(theme: Theme) {
           baseVariable.setValueForMode(modeId, alias);
         }
       } else if (shade === "FOREGROUND") {
-        const foregroundVariable = await createColorVariable({
+        const foregroundVariable = await createColorOrUpdateVariable({
           name: `${role}-foreground`,
           collection,
           modeId,
-          existingColorVariables,
+          variablesInCollection,
         });
         // If there's a foreground shade, set role-foreground = role-foreground_shade (e.g. brand-foreground = brand-500)
         if (foregroundAliasedTo !== undefined) {
@@ -72,35 +71,3 @@ export default async function createColorVars(theme: Theme) {
   }
 }
 
-// **************************************************************
-// Create a new variable or update an existing variable with the same name
-// **************************************************************
-async function createColorVariable({
-  name,
-  hex,
-  collection,
-  modeId,
-  existingColorVariables,
-}: {
-  name: string;
-  hex?: string;
-  collection: VariableCollection;
-  modeId: string;
-  existingColorVariables: Variable[];
-}) {
-  if (existingColorVariables && existingColorVariables.length > 0) {
-    // Check if a variable with the same name already exists
-    const existingVariable = existingColorVariables.find(
-      (variable) => variable.name === name
-    );
-    if (existingVariable) {
-      // Update the existing variable with the same name
-      hex && existingVariable.setValueForMode(modeId, hexToRgbFloat(hex));
-      return existingVariable;
-    }
-  }
-  // Create a new variable if no variables exist
-  const variable = figma.variables.createVariable(name, collection, "COLOR");
-  hex && variable.setValueForMode(modeId, hexToRgbFloat(hex));
-  return variable;
-}

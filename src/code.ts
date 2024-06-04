@@ -1,5 +1,6 @@
 import createThemeSpecimen from "./lib/create-specimens/create-theme-specimen";
 import createColorVars from "./lib/create-vars/create-color-vars";
+import createSemanticColorVars from "./lib/create-vars/create-semantic-color-vars";
 import createRadiusVars from "./lib/create-vars/create-radius-vars";
 import createTypographyVars from "./lib/create-vars/create-typography-vars";
 import { getThemeByName, getThemesPromise } from "./lib/data";
@@ -39,6 +40,7 @@ async function run() {
 
     // Create variables
     await createColorVars(theme);
+    await createSemanticColorVars(theme);
     await createRadiusVars(theme);
     await createTypographyVars(theme, figmaStyleName);
 
