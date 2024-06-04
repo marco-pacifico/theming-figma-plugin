@@ -24,9 +24,11 @@ export default async function createColorVars(theme: Theme) {
 
       // Needed to capture the shade that the base shade will be aliased to later
       let baseAliasedTo: Variable | undefined = undefined;
+      // Needed to capture the shade that the foreground shade will be aliased to later
+      let foregroundAliasedTo: Variable | undefined = undefined;
 
       for (const shade in scale) {
-        if (shade !== "BASE") {
+        if (shade !== "BASE" && shade !== "FOREGROUND") {
           // Create new variable or update existing variable with the same name
           const variable = await createColorVariable({
             name: `${role}-${shade}`,
@@ -39,6 +41,10 @@ export default async function createColorVars(theme: Theme) {
           if (scale["BASE"] && shade === scale["BASE"].toString()) {
             baseAliasedTo = variable;
           }
+          // If a foreground shade exisits in the scale and the current shade = foreground shade, capture the variable to alias to later
+          if (scale["FOREGROUND"] && shade === scale["FOREGROUND"].toString()) {
+            foregroundAliasedTo = variable;
+          }
         } else if (shade === "BASE") {
           const baseVariable = await createColorVariable({
             name: `${role}-base`,
@@ -50,6 +56,18 @@ export default async function createColorVars(theme: Theme) {
           if (baseAliasedTo !== undefined) {
             const alias = figma.variables.createVariableAlias(baseAliasedTo);
             baseVariable.setValueForMode(modeId, alias);
+          }
+        } else if (shade === "FOREGROUND") {
+          const foregroundVariable = await createColorVariable({
+            name: `${role}-foreground`,
+            collection,
+            modeId,
+            existingColorVariables,
+          });
+          // If there's a foreground shade, set role-foreground = role-foreground_shade (e.g. brand-foreground = brand-500)
+          if (foregroundAliasedTo !== undefined) {
+            const alias = figma.variables.createVariableAlias(foregroundAliasedTo);
+            foregroundVariable.setValueForMode(modeId, alias);
           }
         }
       }
