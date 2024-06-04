@@ -25,6 +25,7 @@ export type BoundVariables = NodeFields & {
 export type ColorScale = {
   [key: string]: string | number;
   BASE: number;
+  FOREGROUND: number;
   "50": string;
   "100": string;
   "200": string;
@@ -38,8 +39,20 @@ export type ColorScale = {
   "950": string;
 };
 
-
-export type NeutralScale = Omit<ColorScale, "BASE">;
+export type NeutralScale = {
+  [key: string]: string | number;
+  "50": string;
+  "100": string;
+  "200": string;
+  "300": string;
+  "400": string;
+  "500": string;
+  "600": string;
+  "700": string;
+  "800": string;
+  "900": string;
+  "950": string;
+};
 
 export type RadiusScale = {
   [key: string]: string;
@@ -57,11 +70,9 @@ export type Heading = {
   style: string;
 };
 
-
 export type FontWeightsMap = {
   [weight: string]: string;
 };
-
 
 export type Theme = {
   [key: string]: ColorScale | NeutralScale | RadiusScale | Heading | string;
@@ -72,4 +83,12 @@ export type Theme = {
   neutral: NeutralScale;
   radius: RadiusScale;
   heading: Heading;
+};
+
+export type SemanticColorMap = {
+  [type: string]: {
+    [role: string]: {
+      [prominence: string]: number | string; // number is the index of the shade, string is white
+    };
+  };
 };
