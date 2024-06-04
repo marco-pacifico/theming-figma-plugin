@@ -1,5 +1,5 @@
 import { NodeWithFills } from "../types";
-import { cloneObject } from "./formatting";
+import { cloneObject, hexToRgbFloat } from "./formatting";
 
 // **************************************************************
 // Create new or use existing collection with the given name
@@ -91,4 +91,88 @@ export function bindStrokesVariableToNode(
   );
   // Update the fills of the frame node
   nodeToPaint.strokes = clonedStrokes;
+}
+
+// **************************************************************
+// Create a new variable or update an existing variable with the same name
+// **************************************************************
+export async function createColorOrUpdateVariable({
+  name,
+  hex,
+  collection,
+  modeId,
+  variablesInCollection,
+}: {
+  name: string;
+  hex?: string;
+  collection: VariableCollection;
+  modeId: string;
+  variablesInCollection: (Variable | null)[];
+}) {
+  if (variablesInCollection && variablesInCollection.length > 0) {
+    // Check if a variable with the same name already exists
+    const existingVariable = variablesInCollection.find(
+      (variable) => variable?.name === name
+    );
+    if (existingVariable) {
+      // Update the existing variable with the same name
+      hex && existingVariable.setValueForMode(modeId, hexToRgbFloat(hex));
+      return existingVariable;
+    }
+  }
+  // Create a new variable if no variables exist
+  const variable = figma.variables.createVariable(name, collection, "COLOR");
+  hex && variable.setValueForMode(modeId, hexToRgbFloat(hex));
+  return variable;
+}
+
+// **************************************************************
+// Create a new variable or update an existing variable with an alias
+// **************************************************************
+export async function createAndAliasToColorVariable({
+  name,
+  aliasTo,
+  collection,
+  modeId,
+  colorVariables,
+  semanticVariables,
+}: {
+  name: string;
+  aliasTo: string;
+  collection: VariableCollection;
+  modeId: string;
+  colorVariables: (Variable | null)[];
+  semanticVariables: (Variable | null)[];
+}) {
+
+  console.log('Starting to create semantic variable', name);
+  console.log('aliasTo', aliasTo);
+  // Get the color variable to alias to
+  const colorVariableToAliasTo = colorVariables.find(
+    (variable) => variable?.name === aliasTo
+  );
+  console.log('colorVariableToAliasTo', colorVariableToAliasTo);
+
+  // Check if a semantic variable with the same name already exists
+  const existingSemanticVariable = semanticVariables.find(
+    (variable) => variable?.name === name
+  );
+  console.log('existingSemanticVariable', existingSemanticVariable);
+
+  // If a semantic variable with the same name already exists, update it with the alias
+  if (existingSemanticVariable && colorVariableToAliasTo) {
+    console.log("Semanitc variable exists already");
+    const alias = figma.variables.createVariableAlias(colorVariableToAliasTo);
+    console.log('alias created', aliasTo);
+    existingSemanticVariable.setValueForMode(modeId, alias);
+    return;
+  }
+  // If a semantic variables doesn't exist already, create a new variable and set the alias
+  const variable = figma.variables.createVariable(name, collection, "COLOR");
+  console.log('new semantic variable created', variable);
+  if (colorVariableToAliasTo) {
+    const alias = figma.variables.createVariableAlias(colorVariableToAliasTo);
+    console.log('alias created', aliasTo);
+    variable.setValueForMode(modeId, alias);
+  }
 }

@@ -1,19 +1,19 @@
 import { componentKeys } from "../component-keys";
-import { rgbaToHex } from "../utils/formatting";
 import { loadFonts } from "../utils/fonts";
 import {
   capitalizeFirstLetter,
-  groupVariablesByPrefix,
+  groupVariablesByPrefix, rgbaToHex
 } from "../utils/formatting";
-import { getInstanceOfComponent, getNode, createFrame } from "../utils/nodes";
+import { createFrame, getInstanceOfComponent, getNode } from "../utils/nodes";
 import {
   bindFillsVariableToNode,
   getCollectionAndModeId,
+  getVariablesInCollection,
 } from "../utils/variables";
 
 export default async function createColorSpecimens() {
   // Get color variables in the file
-  const colorVariables = await figma.variables.getLocalVariablesAsync("COLOR");
+  const colorVariables = await getVariablesInCollection("_Colors");
 
   // Group color variables by prefix
   const groupedVariables = groupVariablesByPrefix(colorVariables);
