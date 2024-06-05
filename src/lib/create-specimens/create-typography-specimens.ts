@@ -6,7 +6,7 @@ import { getVariablesInCollection } from "../utils/variables";
 export default async function createTypographySpecimens({
   themeFont,
   figmaStyleName,
-} : {
+}: {
   themeFont: string;
   figmaStyleName: string;
 }) {
@@ -25,50 +25,55 @@ export default async function createTypographySpecimens({
     parent: figma.currentPage,
   }) as FrameNode;
 
-  // Print heading font family and font style in the typography specimen 
+  // Print heading font family and font style in the typography specimen
   const headingFontTextNode = TypographyFrame.findOne(
     (node) => node.type === "TEXT" && node.name === "Heading Font"
   ) as TextNode;
   // Update the font family and font style text node
-  headingFontTextNode.characters = `${themeFont} ${figmaStyleName}`
+  headingFontTextNode.characters = `${themeFont} ${figmaStyleName}`;
 
-  
   // Get all text nodes in the typography specimens with the name "Theme Heading"
-  const headings =
+  const headingsSpecimens =
     TypographyFrame &&
     (TypographyFrame.findAll(
       (node) => node.type === "TEXT" && node.name === "Theme Heading"
     ) as TextNode[]);
 
   // Create text styles with typography variables, and apply the styles to the headings text nodes
-  for (const heading of headings) {
-    // Delete existing text style that will be replaced
-    const existingTextStyle = (await figma.getLocalTextStylesAsync()).find(
-      (textStyle) => textStyle.name === heading.characters
+  for (const headingSpecimen of headingsSpecimens) {
+    let headingTextStyle: TextStyle | null = null;
+    // Check to see if the text style already exists
+    const exisitingHeadingStyle = (await figma.getLocalTextStylesAsync()).find(
+      (textStyle) => textStyle.name === headingSpecimen.characters
     );
-    if (existingTextStyle) {
-      existingTextStyle.remove();
+    // If the text style already exists, use it
+    if (exisitingHeadingStyle) {
+      headingTextStyle = exisitingHeadingStyle;
+    }
+    // If the text style doesn't exist, create a new one
+    if (!exisitingHeadingStyle) {
+      // Get properties from the heading specimen text node
+      const fontSize = headingSpecimen.fontSize;
+      const lineHeight = headingSpecimen.lineHeight;
+      const letterSpacing = headingSpecimen.letterSpacing;
+      const textCase = headingSpecimen.textCase;
+      const textDecoration = headingSpecimen.textDecoration;
+
+      // Create a new text style with the name of the heading specimen
+      headingTextStyle = figma.createTextStyle();
+      headingTextStyle.name = headingSpecimen.characters;
+
+      // Set text style properties from the heading specimen
+      fontSize !== figma.mixed && (headingTextStyle.fontSize = fontSize);
+      letterSpacing !== figma.mixed &&
+        (headingTextStyle.letterSpacing = letterSpacing);
+      lineHeight !== figma.mixed && (headingTextStyle.lineHeight = lineHeight);
+      textCase !== figma.mixed && (headingTextStyle.textCase = textCase);
+      textDecoration !== figma.mixed &&
+        (headingTextStyle.textDecoration = textDecoration);
     }
 
-    // Get properties from the heading text node
-    const fontSize = heading.fontSize;
-    const lineHeight = heading.lineHeight;
-    const letterSpacing = heading.letterSpacing;
-    const textCase = heading.textCase;
-    const textDecoration = heading.textDecoration;
-
-    // Create text style for the heading
-    const textStyle = figma.createTextStyle();
-    textStyle.name = heading.characters;
-
-    // Set text style properties
-    fontSize !== figma.mixed && (textStyle.fontSize = fontSize);
-    letterSpacing !== figma.mixed && (textStyle.letterSpacing = letterSpacing);
-    lineHeight !== figma.mixed && (textStyle.lineHeight = lineHeight);
-    textCase !== figma.mixed && (textStyle.textCase = textCase);
-    textDecoration !== figma.mixed &&
-      (textStyle.textDecoration = textDecoration);
-
+    // APPLY FONT FAMILY AND FONT STYLE VARIABLES TO HEADING TEXT STYLE, NEW OR EXISITNG
     // Get font family and font style variables
     const typographyVariables = await getVariablesInCollection("_Typography");
     const fontFamilyVariable = typographyVariables.find(
@@ -78,14 +83,16 @@ export default async function createTypographySpecimens({
       (variable) => variable?.name === "heading-font-style"
     );
 
-    if (fontFamilyVariable && fontStyleVariable) {
+    if (fontFamilyVariable && fontStyleVariable && headingTextStyle) {
       // Bind font family and font style to the text style
-      textStyle.setBoundVariable("fontFamily", fontFamilyVariable);
-      textStyle.setBoundVariable("fontStyle", fontStyleVariable);
+      headingTextStyle.setBoundVariable("fontFamily", fontFamilyVariable);
+      headingTextStyle.setBoundVariable("fontStyle", fontStyleVariable);
     }
 
-    // Apply the text style to the heading
-    await heading.setTextStyleIdAsync(textStyle.id);
+    // Apply text style to the heading specimen text node
+    if (headingTextStyle) {
+      await headingSpecimen.setTextStyleIdAsync(headingTextStyle.id);
+    }
   }
 
   return typographySpecimens;
@@ -104,4 +111,3 @@ export default async function createTypographySpecimens({
 //     ) as TextNode[]);
 //   return HeadingTextNodes;
 // }
-

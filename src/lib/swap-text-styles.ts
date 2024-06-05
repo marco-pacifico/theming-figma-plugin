@@ -9,7 +9,6 @@ export default async function swapTextStyles() {
     (textStyle) => textStyle.name.includes("Heading")
   );
 
-
   // Swap component instance text styles with local text styles
   // Match text styles by name
   for (const textNode of allTextNodesInFile) {
