@@ -144,35 +144,26 @@ export async function createAndAliasToColorVariable({
   colorVariables: (Variable | null)[];
   semanticVariables: (Variable | null)[];
 }) {
-
-  console.log('Starting to create semantic variable', name);
-  console.log('aliasTo', aliasTo);
   // Get the color variable to alias to
   const colorVariableToAliasTo = colorVariables.find(
     (variable) => variable?.name === aliasTo
   );
-  console.log('colorVariableToAliasTo', colorVariableToAliasTo);
 
   // Check if a semantic variable with the same name already exists
   const existingSemanticVariable = semanticVariables.find(
     (variable) => variable?.name === name
   );
-  console.log('existingSemanticVariable', existingSemanticVariable);
 
   // If a semantic variable with the same name already exists, update it with the alias
   if (existingSemanticVariable && colorVariableToAliasTo) {
-    console.log("Semanitc variable exists already");
     const alias = figma.variables.createVariableAlias(colorVariableToAliasTo);
-    console.log('alias created', aliasTo);
     existingSemanticVariable.setValueForMode(modeId, alias);
     return;
   }
   // If a semantic variables doesn't exist already, create a new variable and set the alias
   const variable = figma.variables.createVariable(name, collection, "COLOR");
-  console.log('new semantic variable created', variable);
   if (colorVariableToAliasTo) {
     const alias = figma.variables.createVariableAlias(colorVariableToAliasTo);
-    console.log('alias created', aliasTo);
     variable.setValueForMode(modeId, alias);
   }
 }

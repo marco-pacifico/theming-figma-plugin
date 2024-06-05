@@ -1,4 +1,5 @@
 import { NodeWithFills } from "./types";
+import { cloneObject } from "./utils/formatting";
 import { removeExistingNode } from "./utils/nodes";
 import {
   bindFillsVariableToNode,
@@ -21,15 +22,43 @@ export default async function swapVariables() {
   // SWAP FILLS
   // For each node find any bounded fills variables and swap them out with existing color variable of the same name
   for (const node of filteredNodes) {
-    const variablesToSwapOut = [];
+    // const variablesToSwapOut = [];
 
-    // There can be multiple fills per node, so get an array of fill variables to swap out for each node
-    for (const fillVariableAlias of node.boundVariables?.fills || []) {
-      const fillVariable = await figma.variables.getVariableByIdAsync(fillVariableAlias.id);
-      variablesToSwapOut.push(fillVariable);
-    }
-  
-    for (const variableToSwapOut of variablesToSwapOut) {
+    // If a text node, need to check if there are text segments with different fills
+    if (node.type === "TEXT" && node.fills === figma.mixed) {
+      // Get the text segments with fills
+      const textSegmentsFills = node.getStyledTextSegments(["fills"]);
+      // For each text segment, swap out the fill with the existing color variable
+      for (const textSegment of textSegmentsFills) {
+        const { start, end, fills } = textSegment;
+        // Bound variables are only available for solid fills
+        if (fills[0]?.type === "SOLID") {
+          const variableToSwapOut = await figma.variables.getVariableByIdAsync(
+            fills[0]?.boundVariables?.color?.id || ""
+          );
+          const variableToSwapIn = existingColorVariables.find(
+            (variable) => variable.name === variableToSwapOut?.name
+          );
+          if (variableToSwapIn) {
+            // Clone fill
+            const clonedFills = cloneObject(fills);
+            // Set the fill to the variable color
+            clonedFills[0] = figma.variables.setBoundVariableForPaint(
+              clonedFills[0],
+              "color",
+              variableToSwapIn
+            );
+            node.setRangeFills(start, end, clonedFills);
+          }
+        }
+      }
+    } else {
+      // If not a text node, don't need to check if there are text segments with different fills
+      // Get the variable that's bound to the fill of the node
+      const fillVariableId = node.boundVariables?.fills?.[0]?.id;
+      const variableToSwapOut = await figma.variables.getVariableByIdAsync(
+        fillVariableId || ""
+      );
       // Swap in the local variable of the same name
       const variableToSwapIn = existingColorVariables.find(
         (variable) => variable.name === variableToSwapOut?.name
@@ -38,8 +67,25 @@ export default async function swapVariables() {
         bindFillsVariableToNode(variableToSwapIn, node as NodeWithFills);
       }
     }
-  }
 
+    // There can be multiple fills per node, so get an array of fill variables to swap out for each node
+    // for (const fillVariableAlias of node.boundVariables?.fills || []) {
+    //   const fillVariable = await figma.variables.getVariableByIdAsync(
+    //     fillVariableAlias.id
+    //   );
+    //   variablesToSwapOut.push(fillVariable);
+    // }
+
+    // for (const variableToSwapOut of variablesToSwapOut) {
+    //   // Swap in the local variable of the same name
+    //   const variableToSwapIn = existingColorVariables.find(
+    //     (variable) => variable.name === variableToSwapOut?.name
+    //   );
+    //   if (variableToSwapIn) {
+    //     bindFillsVariableToNode(variableToSwapIn, node as NodeWithFills);
+    //   }
+    // }
+  }
 
   // SWAP STROKES
   for (const node of filteredNodes) {
@@ -47,10 +93,12 @@ export default async function swapVariables() {
 
     // There can be multiple strokes per node, so get an array of stroke variables to swap out for each node
     for (const strokeVariableAlias of node.boundVariables?.strokes || []) {
-      const strokeVariable = await figma.variables.getVariableByIdAsync(strokeVariableAlias.id);
+      const strokeVariable = await figma.variables.getVariableByIdAsync(
+        strokeVariableAlias.id
+      );
       variablesToSwapOut.push(strokeVariable);
     }
-  
+
     for (const variableToSwapOut of variablesToSwapOut) {
       // Swap in the local variable of the same name
       const variableToSwapIn = existingColorVariables.find(
