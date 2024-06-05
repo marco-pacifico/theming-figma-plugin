@@ -22,8 +22,6 @@ export default async function swapVariables() {
   // SWAP FILLS
   // For each node find any bounded fills variables and swap them out with existing color variable of the same name
   for (const node of filteredNodes) {
-    // const variablesToSwapOut = [];
-
     // If a text node, need to check if there are text segments with different fills
     if (node.type === "TEXT" && node.fills === figma.mixed) {
       // Get the text segments with fills
@@ -67,24 +65,6 @@ export default async function swapVariables() {
         bindFillsVariableToNode(variableToSwapIn, node as NodeWithFills);
       }
     }
-
-    // There can be multiple fills per node, so get an array of fill variables to swap out for each node
-    // for (const fillVariableAlias of node.boundVariables?.fills || []) {
-    //   const fillVariable = await figma.variables.getVariableByIdAsync(
-    //     fillVariableAlias.id
-    //   );
-    //   variablesToSwapOut.push(fillVariable);
-    // }
-
-    // for (const variableToSwapOut of variablesToSwapOut) {
-    //   // Swap in the local variable of the same name
-    //   const variableToSwapIn = existingColorVariables.find(
-    //     (variable) => variable.name === variableToSwapOut?.name
-    //   );
-    //   if (variableToSwapIn) {
-    //     bindFillsVariableToNode(variableToSwapIn, node as NodeWithFills);
-    //   }
-    // }
   }
 
   // SWAP STROKES
