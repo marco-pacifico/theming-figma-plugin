@@ -18,9 +18,10 @@ export default async function swapTextStyles() {
       textStyleId !== figma.mixed &&
       (await figma.getStyleByIdAsync(textStyleId));
     const textStyleName = textStyle && textStyle.name;
+    
 
     for (const headingTextStyle of headingTextStyles) {
-      if (textStyleName === headingTextStyle.name) {
+      if (textStyleName === `_${headingTextStyle.name}`) {
         await textNode.setTextStyleIdAsync(headingTextStyle.id);
       }
     }

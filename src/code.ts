@@ -57,8 +57,6 @@ async function run() {
     // Swap text styles
     await swapTextStyles();
 
-    // arrangeNodesOnPage();
-
     // Close the plugin after running
     figma.closePlugin(`Theme created for: ${themeName}`);
   });

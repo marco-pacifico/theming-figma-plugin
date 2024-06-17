@@ -98,16 +98,3 @@ export default async function createTypographySpecimens({
   return typographySpecimens;
 }
 
-// function getHeadingTextNodes() {
-//   const TypographyFrame = getNode({
-//     name: "Typography",
-//     type: "FRAME",
-//     parent: figma.currentPage,
-//   }) as FrameNode;
-//   const HeadingTextNodes =
-//     TypographyFrame &&
-//     (TypographyFrame.findAll(
-//       (node) => node.type === "TEXT" && node.name === "Theme Heading"
-//     ) as TextNode[]);
-//   return HeadingTextNodes;
-// }
