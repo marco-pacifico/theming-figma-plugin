@@ -20,7 +20,7 @@ export default async function swapTextStyles() {
     const textStyleName = textStyle && textStyle.name;
 
     for (const headingTextStyle of headingTextStyles) {
-      if (textStyleName === headingTextStyle.name) {
+      if (`_${textStyleName}` === headingTextStyle.name) {
         await textNode.setTextStyleIdAsync(headingTextStyle.id);
       }
     }
